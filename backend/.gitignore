@@ -1,5 +1,20 @@
 node_modules/
 data/db.json
+.env
+
+# Ignore everything in uploads/ EXCEPT the default seed images that ship
+# with the project (these are referenced by data/seed.json and must be
+# tracked in git so they exist on the deployed server). Any new image
+# uploaded through the admin dashboard gets a random hex filename and
+# stays untracked, which is what we actually want to ignore.
 uploads/*
 !uploads/.gitkeep
-.env
+!uploads/hero-bg.jpg
+!uploads/designer-profile.jpg
+!uploads/logo.png
+!uploads/project-1.jpg
+!uploads/project-2.jpg
+!uploads/project-3.jpg
+!uploads/project-4.jpg
+!uploads/project-5.jpg
+!uploads/project-6.jpg
