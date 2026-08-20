@@ -1,0 +1,72 @@
+{
+  "admin": {
+    "username": "admin",
+    "passwordHash": "$2b$10$o7urUZn.le1tw7m3ArxgLeB3n9aRjhswOBzDFfmPYhXKO/bH34i5y",
+    "email": "admin@thecreatorcreations.com"
+  },
+  "settings": {
+    "siteName": "THE CREATOR CREATIONS",
+    "tagline": "Creative Design Studio",
+    "logoImage": "/uploads/logo.png",
+    "heroImage": "/uploads/hero-bg.jpg",
+    "heroTitleLine1": "We craft",
+    "heroTitleHighlight": "visual",
+    "heroTitleLine2": "stories",
+    "heroSubtitle": "Pushing boundaries in brand identity, editorial design, and digital experiences that leave lasting impressions.",
+    "aboutHeading": "Design is our obsession",
+    "aboutParagraph1": "We're a collective of designers, thinkers, and visual storytellers who believe that great design isn't just seen \u2014 it's felt. Every pixel, every curve, every color choice is deliberate.",
+    "aboutParagraph2": "From brand identities to immersive digital experiences, we bring ideas to life with precision and passion. Our work spans across industries, cultures, and mediums.",
+    "designerName": "Alex Martinez",
+    "designerTitle": "Creative Director & Founder",
+    "designerImage": "/uploads/designer-profile.jpg",
+    "designerBio1": "I'm Alex \u2014 a multidisciplinary designer and creative director with over 12 years of experience turning abstract ideas into powerful visual narratives, spanning brand identity, web design and development, photography, and videography.",
+    "designerBio2": "From branding Fortune 500 companies to crafting indie album art, I approach every project with the same hunger: to create something that demands attention and refuses to be forgotten.",
+    "yearsExperience": 12,
+    "contactEmail": "hello@thecreatorcreations.com",
+    "contactPhone": "+1 (555) 123-4567",
+    "contactLocation": "New York, NY",
+    "socialLinks": { "dribbble": "#", "behance": "#", "instagram": "#" }
+  },
+  "projects": [
+    { "id": 1, "title": "Chromatic Vision", "category": "Brand Identity", "year": "2025", "color": "hsl(45, 100%, 55%)", "image": "/uploads/project-1.jpg", "featured": true, "order": 1 },
+    { "id": 2, "title": "Aurum Luxe", "category": "Packaging Design", "year": "2025", "color": "hsl(30, 100%, 50%)", "image": "/uploads/project-2.jpg", "featured": true, "order": 2 },
+    { "id": 3, "title": "Neon Pulse", "category": "Poster Design", "year": "2024", "color": "hsl(330, 80%, 60%)", "image": "/uploads/project-3.jpg", "featured": true, "order": 3 },
+    { "id": 4, "title": "Editorial Gold", "category": "Magazine Layout", "year": "2024", "color": "hsl(45, 100%, 55%)", "image": "/uploads/project-4.jpg", "featured": true, "order": 4 },
+    { "id": 5, "title": "Prisma Forms", "category": "Art Direction", "year": "2024", "color": "hsl(280, 70%, 50%)", "image": "/uploads/project-5.jpg", "featured": true, "order": 5 },
+    { "id": 6, "title": "Fluid Spectrum", "category": "Album Art", "year": "2023", "color": "hsl(330, 80%, 60%)", "image": "/uploads/project-6.jpg", "featured": true, "order": 6 }
+  ],
+  "services": [
+    { "id": 1, "title": "Brand Identity", "description": "Complete visual identity systems that define and differentiate.", "icon": "Palette", "order": 1 },
+    { "id": 2, "title": "Print Design", "description": "Posters, packaging, and editorial layouts with tactile appeal.", "icon": "Layers", "order": 2 },
+    { "id": 3, "title": "Illustration", "description": "Custom artwork and visual narratives for any medium.", "icon": "PenTool", "order": 3 },
+    { "id": 4, "title": "Digital Design", "description": "Web and app interfaces that balance beauty with usability.", "icon": "Monitor", "order": 4 },
+    { "id": 5, "title": "Art Direction", "description": "Creative vision and direction for campaigns and shoots.", "icon": "Camera", "order": 5 },
+    { "id": 6, "title": "Motion Design", "description": "Animated graphics that bring static designs to life.", "icon": "Sparkles", "order": 6 }
+  ],
+  "skills": [
+    { "id": 1, "name": "Brand Identity", "level": 95, "order": 1 },
+    { "id": 2, "name": "Typography", "level": 90, "order": 2 },
+    { "id": 3, "name": "UI/UX Design", "level": 88, "order": 3 },
+    { "id": 4, "name": "Art Direction", "level": 92, "order": 4 },
+    { "id": 5, "name": "Motion Design", "level": 85, "order": 5 },
+    { "id": 6, "name": "Web Design", "level": 87, "order": 6 },
+    { "id": 7, "name": "Web Development", "level": 80, "order": 7 },
+    { "id": 8, "name": "Photography", "level": 89, "order": 8 },
+    { "id": 9, "name": "Videography", "level": 84, "order": 9 },
+    { "id": 10, "name": "Creative Direction", "level": 93, "order": 10 }
+  ],
+  "milestones": [
+    { "id": 1, "year": "2013", "title": "The Beginning", "description": "Started as a junior designer at a boutique agency in Brooklyn, learning the craft of visual storytelling.", "image": "/uploads/project-1.jpg", "order": 1 },
+    { "id": 2, "year": "2017", "title": "Going Independent", "description": "Launched The Creator Creations with a vision to create bold, uncompromising design that challenges conventions.", "image": "/uploads/project-3.jpg", "order": 2 },
+    { "id": 3, "year": "2021", "title": "Global Recognition", "description": "Won multiple international design awards. Featured in Communication Arts, Behance, and AIGA.", "image": "/uploads/project-5.jpg", "order": 3 }
+  ],
+  "stats": [
+    { "id": 1, "value": "150+", "label": "Projects Completed", "order": 1 },
+    { "id": 2, "value": "12", "label": "Years Experience", "order": 2 },
+    { "id": 3, "value": "40+", "label": "Global Clients", "order": 3 },
+    { "id": 4, "value": "8", "label": "Design Awards", "order": 4 }
+  ],
+  "messages": [],
+  "subscribers": [],
+  "meta": { "nextId": { "projects": 7, "services": 7, "skills": 11, "milestones": 4, "stats": 5, "messages": 1, "subscribers": 1 } }
+}
