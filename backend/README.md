@@ -1,18 +1,21 @@
-# The Creator Creations — Website + Backend Admin
+# The Creator Creations — Backend & Admin Dashboard
 
-This package contains the full The Creator Creations creative-design-studio website plus a
-backend API and admin dashboard for managing its content — including every image on the
-site.
+A full backend API + admin dashboard for the The Creator Creations design-studio website. Built with
+Node.js, Express and a lightweight JSON file database (no external database server to install).
 
-```
-.
-├── frontend/   # React + Vite + Tailwind site — now pulls its content live from the backend
-└── backend/    # Express API + JSON database + /admin dashboard
-```
+## What's included
 
-## Quick start
+- **REST API** for everything the site displays: projects, services, skills, journey
+  milestones, about stats, site settings (hero/about/contact copy, plus the logo, hero
+  background, and designer photo — every image on the site), contact messages, and
+  newsletter subscribers.
+- **JWT-based admin authentication** (single admin account, password stored hashed).
+- **Admin dashboard UI** at `/admin` — a lightweight, dependency-free web app (no build
+  step) styled to match the site's dark/gold aesthetic, with full CRUD screens, image
+  upload, and a messages/subscribers inbox.
+- **Image uploads** via `multer`, served back out of `/uploads`.
 
-**1. Run the backend** (API + admin dashboard):
+## Getting started
 
 ```bash
 cd backend
@@ -20,69 +23,116 @@ npm install
 npm start
 ```
 
-- Admin dashboard: http://localhost:4000/admin (login: `admin` / `admin123`)
-- API base: http://localhost:4000/api
+The server starts on `http://localhost:4000` by default (override with `PORT=...`).
 
-**2. Run the frontend** (the public site):
+- API base: `http://localhost:4000/api`
+- Admin dashboard: `http://localhost:4000/admin`
+
+**Default admin login:** `admin` / `admin123` — please change this immediately from
+**Account → Change Password** inside the dashboard after your first login.
+
+The first time the server runs it copies `data/seed.json` (pre-filled with the current
+site content) to `data/db.json`, which becomes your live, editable database. Delete
+`data/db.json` at any time to reset back to the seed content.
+
+## Environment variables (optional)
+
+| Variable      | Default                          | Purpose                          |
+|---------------|-----------------------------------|-----------------------------------|
+| `PORT`        | `4000`                            | Port the server listens on        |
+| `JWT_SECRET`  | dev default (change in production)| Secret used to sign admin tokens  |
+
+Create a `.env`-style export before `npm start`, e.g. `PORT=5000 JWT_SECRET=supersecret npm start`.
+
+## API overview
+
+All list/read endpoints below are public (so the public website can fetch content).
+Write endpoints (`POST` / `PUT` / `PATCH` / `DELETE`) require `Authorization: Bearer <token>`.
+
+| Resource | Endpoints |
+|---|---|
+| Auth | `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/change-password` |
+| Projects | `GET/POST /api/projects`, `GET/PUT/DELETE /api/projects/:id`, `PATCH /api/projects/reorder` |
+| Services | same pattern at `/api/services` |
+| Skills | same pattern at `/api/skills` |
+| Milestones | same pattern at `/api/milestones` |
+| Stats | same pattern at `/api/stats` |
+| Settings | `GET /api/settings` (public), `PUT /api/settings` (admin) |
+| Messages | `POST /api/messages` (public, from the contact form), `GET/PUT/DELETE /api/messages/:id` (admin) |
+| Subscribers | `POST /api/subscribers` (public, from the newsletter form), `GET/DELETE /api/subscribers/:id` (admin) |
+| Upload | `POST /api/upload` (admin, multipart `image` field) → `{ url }` |
+| Dashboard | `GET /api/dashboard` (admin) — counts + recent activity |
+
+### Example: log in and create a project
 
 ```bash
-cd frontend
-npm install
-npm run dev
+TOKEN=$(curl -s -X POST http://localhost:4000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}' | jq -r .token)
+
+curl -X POST http://localhost:4000/api/projects \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"title":"New Work","category":"Branding","year":"2026","order":7}'
 ```
 
-- Site: http://localhost:8080 (or whatever port Vite prints)
+## Connecting the frontend
 
-The frontend is pre-configured to talk to `http://localhost:4000/api` by default, so as
-long as the backend is running, everything you change in `/admin` — text **and
-pictures** — appears on the site automatically (it refetches on tab focus and every 15s,
-no rebuild needed). If the backend isn't running, the site quietly falls back to its
-built-in default content, so it never breaks.
+The React site in `../frontend` now fetches its content live from this backend by
+default — every section component uses the hooks in `frontend/src/lib/useSiteData.ts`,
+which point at `http://localhost:4000/api` out of the box. Run both together locally and
+edits made in `/admin` (text and images) appear on the site automatically, no rebuild
+needed.
+
+If the backend isn't running, every component quietly falls back to its original
+built-in content, so the site never breaks.
 
 To point the frontend at a different backend (staging/production), create
-`frontend/.env` with:
+`frontend/.env`:
 
 ```
 VITE_API_URL=https://your-backend-domain.com/api
 ```
 
-## What the admin dashboard manages
+## Data storage & making it durable on free hosting
 
-- **Projects** — the Selected Works portfolio cards *and* the cinematic fullscreen
-  slider (title, category, year, **image**, order)
-- **Services** — the six service tiles
-- **Skills** — the skill bars on the designer profile
-- **Journey** — the career-milestone slider (year, title, description, **image**)
-- **About Stats** — the four stat counters (150+ Projects, 12 Years, etc.)
-- **Site Settings** — every other picture and headline on the site:
-  - **Logo** (navbar + footer + loading screen)
-  - **Hero background image**
-  - **Designer photo**
-  - Hero copy, about copy, designer bio, contact email/phone/location
-- **Messages** — every contact-form submission, with read/unread + delete
-- **Subscribers** — every newsletter signup, with delete
-- **Account** — change the admin password
+Data lives in `data/db.json` as plain JSON via [lowdb](https://github.com/typicode/lowdb).
+Locally, that's all you need — it just works.
 
-Every image field in the dashboard is a real file upload (drag a new photo in, it
-replaces the old one immediately) — there's no picture on the site that can't be swapped
-from `/admin`. See `backend/README.md` for the full API reference.
+**If you're deploying to a free-tier host like Render**, the disk is wiped whenever the
+instance restarts (which free tiers do automatically after ~15 minutes idle). Without
+extra setup, that means admin edits and uploaded images would vanish on the next restart.
+Two free services close that gap completely, and both are optional — the app runs fine
+without them locally, and falls back gracefully if they're not configured:
 
-## The loading screen
+**1. Upstash Redis (durable database)** — every write is snapshotted here, and it's
+restored automatically the next time the server boots.
+1. Go to [upstash.com](https://upstash.com), sign up free, create a Redis database
+   (any region close to your Render region is fine).
+2. On the database's page, find the **REST API** section and copy the
+   `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` values.
+3. Add both as environment variables on Render (Dashboard → your service →
+   Environment).
 
-The site now opens with an animated loading sequence (`frontend/src/components/LoadingScreen.tsx`):
-a circular progress ring draws in around the logo, the site name reveals word-by-word,
-a progress bar counts up, then the whole screen splits apart like a curtain to reveal the
-hero underneath. It reads the live logo and site name from the backend too, so it stays
-on-brand automatically if you change either in `/admin`.
+**2. Cloudinary (durable image hosting)** — every image you upload through `/admin` goes
+straight here instead of the server's local disk, so it's permanent from the moment you
+upload it.
+1. Go to [cloudinary.com](https://cloudinary.com), sign up free.
+2. On your Cloudinary dashboard, copy your **Cloud Name**, **API Key**, and **API
+   Secret**.
+3. Add them as environment variables on Render: `CLOUDINARY_CLOUD_NAME`,
+   `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 
-## How the live wiring works
+Once both are set and you redeploy, admin edits and uploaded images survive restarts
+indefinitely — no more re-uploading anything through GitHub.
 
-Each section component (`HeroSection`, `ProjectSlider`, `ServicesSection`,
-`DesignerProfile`, `AboutSection`, `ContactSection`, `Navbar`, `Footer`) uses a small set
-of React Query hooks in `frontend/src/lib/useSiteData.ts` to fetch its content from the
-backend. If a request fails or the backend is offline, each component falls back to the
-same default content it shipped with — so the site is never broken, only "extra alive"
-when the backend is up.
+For a production deployment with many concurrent writers, you'd eventually want a real
+database (Postgres/MySQL) instead of this snapshot approach — the route files are
+already organized so only `db.js` would need to change.
 
-Image paths returned by the API (e.g. `/uploads/xyz.jpg`) are resolved to full URLs by
-`resolveImageUrl()` in `frontend/src/lib/api.ts`.
+## Security notes
+
+- Change the default admin password and `JWT_SECRET` before deploying.
+- The JSON database is not encrypted; treat `data/db.json` as sensitive if you store
+  personal contact data in it.
+- Uploaded files are limited to 8MB and common image extensions.

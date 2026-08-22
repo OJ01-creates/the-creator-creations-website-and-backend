@@ -9,6 +9,10 @@
     "tagline": "Creative Design Studio",
     "logoImage": "/uploads/logo.png",
     "heroImage": "/uploads/hero-bg.jpg",
+    "primaryColor": "#FFC61A",
+    "accentColor": "#EC4899",
+    "headingFont": "Syne",
+    "bodyFont": "Space Grotesk",
     "heroTitleLine1": "We craft",
     "heroTitleHighlight": "visual",
     "heroTitleLine2": "stories",
@@ -25,7 +29,11 @@
     "contactEmail": "hello@thecreatorcreations.com",
     "contactPhone": "+1 (555) 123-4567",
     "contactLocation": "New York, NY",
-    "socialLinks": { "dribbble": "#", "behance": "#", "instagram": "#" }
+    "socialLinks": [
+      { "label": "Dribbble", "url": "#" },
+      { "label": "Behance", "url": "#" },
+      { "label": "Instagram", "url": "#" }
+    ]
   },
   "projects": [
     { "id": 1, "title": "Chromatic Vision", "category": "Brand Identity", "year": "2025", "color": "hsl(45, 100%, 55%)", "image": "/uploads/project-1.jpg", "featured": true, "order": 1 },

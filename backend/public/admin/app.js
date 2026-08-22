@@ -432,6 +432,25 @@ function renderField(f, item) {
       <img data-preview-for="${f.key}" class="thumb" style="width:100%;height:120px;object-fit:cover;display:${value ? "block" : "none"};margin-bottom:16px" src="${value}" />
     `;
   }
+  if (f.type === "color") {
+    const hex = /^#[0-9a-fA-F]{6}$/.test(String(value)) ? value : "#000000";
+    return `
+      <label>${f.label}</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <input type="color" name="${f.key}" value="${hex}" style="width:48px;height:40px;padding:2px;border-radius:8px;cursor:pointer;flex-shrink:0" />
+        <span style="color:var(--muted);font-size:12px;font-family:monospace">${hex}</span>
+      </div>
+    `;
+  }
+  if (f.type === "select") {
+    const options = f.options || [];
+    return `
+      <label>${f.label}</label>
+      <select name="${f.key}">
+        ${options.map(opt => `<option value="${opt}" ${String(value) === opt ? "selected" : ""}>${opt}</option>`).join("")}
+      </select>
+    `;
+  }
   return `<label>${f.label}${f.required ? " *" : ""}</label><input name="${f.key}" type="${f.type === "number" ? "number" : "text"}" value="${escapeHtml(String(value))}" placeholder="${f.placeholder || ""}" ${f.required ? "required" : ""} />`;
 }
 
@@ -526,35 +545,72 @@ async function renderSubscribers(main) {
 }
 
 /* ---------------- Settings ---------------- */
+const FONT_OPTIONS = [
+  "Syne", "Space Grotesk", "Poppins", "Playfair Display", "Montserrat",
+  "Inter", "Sora", "Outfit", "DM Sans", "Manrope", "Work Sans", "Bebas Neue",
+];
+
 const SETTINGS_FIELDS = [
   { key: "siteName", label: "Site Name" },
   { key: "tagline", label: "Tagline" },
   { key: "logoImage", label: "Logo", type: "image" },
+];
+
+const THEME_FIELDS = [
+  { key: "primaryColor", label: "Primary color", type: "color" },
+  { key: "accentColor", label: "Accent color", type: "color" },
+  { key: "headingFont", label: "Heading font", type: "select", options: FONT_OPTIONS },
+  { key: "bodyFont", label: "Body font", type: "select", options: FONT_OPTIONS },
+];
+
+const HERO_FIELDS = [
   { key: "heroImage", label: "Hero background image", type: "image" },
   { key: "heroTitleLine1", label: "Hero — line 1" },
   { key: "heroTitleHighlight", label: "Hero — highlighted word" },
   { key: "heroTitleLine2", label: "Hero — line 2" },
   { key: "heroSubtitle", label: "Hero subtitle", type: "textarea" },
+];
+
+const ABOUT_FIELDS = [
   { key: "aboutHeading", label: "About heading" },
   { key: "aboutParagraph1", label: "About paragraph 1", type: "textarea" },
   { key: "aboutParagraph2", label: "About paragraph 2", type: "textarea" },
+];
+
+const DESIGNER_FIELDS = [
   { key: "designerName", label: "Designer name" },
   { key: "designerTitle", label: "Designer title" },
   { key: "designerImage", label: "Designer photo", type: "image" },
   { key: "designerBio1", label: "Designer bio 1", type: "textarea" },
   { key: "designerBio2", label: "Designer bio 2", type: "textarea" },
   { key: "yearsExperience", label: "Years experience", type: "number" },
+];
+
+const CONTACT_FIELDS = [
   { key: "contactEmail", label: "Contact email" },
   { key: "contactPhone", label: "Contact phone" },
   { key: "contactLocation", label: "Contact location" },
 ];
+
+const ALL_FLAT_FIELDS = [
+  ...SETTINGS_FIELDS, ...THEME_FIELDS, ...HERO_FIELDS,
+  ...ABOUT_FIELDS, ...DESIGNER_FIELDS, ...CONTACT_FIELDS,
+];
+
+function settingsSection(title, desc, fields, settings) {
+  return `
+    <h3 style="margin:32px 0 4px">${title}</h3>
+    ${desc ? `<p class="section-desc">${desc}</p>` : ""}
+    ${fields.map(f => renderField(f, settings)).join("")}
+  `;
+}
 
 async function renderSettings(main) {
   main.innerHTML = `
     <div class="page-header">
       <div>
         <h1 class="page-title">Site Settings</h1>
-        <div class="page-sub">Every picture and headline on the site lives here or in Projects / Journey.</div>
+        <div class="page-sub">Every picture, color, font, and headline on the site lives here or in Projects / Journey.</div>
       </div>
     </div>
     <div class="card"><div id="settings-wrap">Loading…</div></div>
@@ -562,23 +618,69 @@ async function renderSettings(main) {
   const wrap = document.getElementById("settings-wrap");
   try {
     const settings = await api("/settings");
+    let socialLinks = Array.isArray(settings.socialLinks) ? [...settings.socialLinks] : [];
+
     wrap.innerHTML = `
       <form id="settings-form">
+        <h3 style="margin-top:0">Branding</h3>
         ${SETTINGS_FIELDS.map(f => renderField(f, settings)).join("")}
+
+        ${settingsSection("Theme", "Changes the color palette and typography across the whole site.", THEME_FIELDS, settings)}
+        ${settingsSection("Hero Section", null, HERO_FIELDS, settings)}
+        ${settingsSection("About Section", null, ABOUT_FIELDS, settings)}
+        ${settingsSection("Designer Profile", null, DESIGNER_FIELDS, settings)}
+        ${settingsSection("Contact Info", null, CONTACT_FIELDS, settings)}
+
+        <h3 style="margin:32px 0 4px">Social Links</h3>
+        <p class="section-desc">Shown in the footer. Add as many as you like.</p>
+        <div id="social-links-wrap"></div>
+        <button type="button" class="btn btn-outline btn-sm" id="add-social-btn" style="margin-bottom:24px">+ Add Social Link</button>
+
         <button class="btn" type="submit">Save Settings</button>
       </form>
     `;
-    wireImageFields(wrap, SETTINGS_FIELDS);
+    wireImageFields(wrap, ALL_FLAT_FIELDS);
+
+    const socialWrap = document.getElementById("social-links-wrap");
+    function renderSocialRows() {
+      socialWrap.innerHTML = socialLinks.map((s, i) => `
+        <div class="form-row" style="margin-bottom:10px;align-items:center;grid-template-columns:1fr 1fr auto">
+          <input data-social-label="${i}" value="${escapeHtml(s.label || "")}" placeholder="Platform (e.g. Instagram)" />
+          <input data-social-url="${i}" value="${escapeHtml(s.url || "")}" placeholder="https://..." />
+          <button type="button" class="btn btn-danger btn-sm" data-social-remove="${i}">Remove</button>
+        </div>
+      `).join("") || `<p class="section-desc">No social links yet.</p>`;
+
+      socialWrap.querySelectorAll("[data-social-label]").forEach(input => {
+        input.addEventListener("input", () => { socialLinks[Number(input.dataset.socialLabel)].label = input.value; });
+      });
+      socialWrap.querySelectorAll("[data-social-url]").forEach(input => {
+        input.addEventListener("input", () => { socialLinks[Number(input.dataset.socialUrl)].url = input.value; });
+      });
+      socialWrap.querySelectorAll("[data-social-remove]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          socialLinks.splice(Number(btn.dataset.socialRemove), 1);
+          renderSocialRows();
+        });
+      });
+    }
+    renderSocialRows();
+
+    document.getElementById("add-social-btn").addEventListener("click", () => {
+      socialLinks.push({ label: "", url: "" });
+      renderSocialRows();
+    });
 
     document.getElementById("settings-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const payload = {};
-      SETTINGS_FIELDS.forEach(f => {
+      ALL_FLAT_FIELDS.forEach(f => {
         let v = fd.get(f.key);
         if (f.type === "number") v = Number(v);
         payload[f.key] = v;
       });
+      payload.socialLinks = socialLinks.filter(s => s.label.trim() || s.url.trim());
       try {
         await api("/settings", { method: "PUT", body: payload });
         toast("Settings saved");

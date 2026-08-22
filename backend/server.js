@@ -1,54 +1,71 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+const { restoreDatabaseFile } = require("./bootstrap");
 
-const authRoutes = require("./routes/auth");
-const messagesRoutes = require("./routes/messages");
-const subscribersRoutes = require("./routes/subscribers");
-const settingsRoutes = require("./routes/settings");
-const uploadRoutes = require("./routes/upload");
-const dashboardRoutes = require("./routes/dashboard");
-const createCrudRouter = require("./routes/crudFactory");
+/**
+ * Everything that touches the database (db.js and every route file) is
+ * required INSIDE this async start() function, after restoreDatabaseFile()
+ * has finished. That ordering matters: requiring db.js immediately
+ * initializes it from whatever's on disk, so the remote snapshot must be
+ * written to disk first, or a restart on Render's free tier would silently
+ * fall back to the original seed data instead of your latest edits.
+ */
+async function start() {
+  await restoreDatabaseFile();
 
-const app = express();
-const PORT = process.env.PORT || 4000;
+  const express = require("express");
+  const cors = require("cors");
+  const path = require("path");
 
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
+  const authRoutes = require("./routes/auth");
+  const messagesRoutes = require("./routes/messages");
+  const subscribersRoutes = require("./routes/subscribers");
+  const settingsRoutes = require("./routes/settings");
+  const uploadRoutes = require("./routes/upload");
+  const dashboardRoutes = require("./routes/dashboard");
+  const createCrudRouter = require("./routes/crudFactory");
 
-// Static: uploaded images
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+  const app = express();
+  const PORT = process.env.PORT || 4000;
 
-// Static: admin dashboard SPA
-app.use("/admin", express.static(path.join(__dirname, "public", "admin")));
+  app.use(cors());
+  app.use(express.json({ limit: "2mb" }));
 
-// API routes
-app.use("/api/auth", authRoutes);
-app.use("/api/projects", createCrudRouter("projects"));
-app.use("/api/services", createCrudRouter("services"));
-app.use("/api/skills", createCrudRouter("skills"));
-app.use("/api/milestones", createCrudRouter("milestones"));
-app.use("/api/stats", createCrudRouter("stats"));
-app.use("/api/messages", messagesRoutes);
-app.use("/api/subscribers", subscribersRoutes);
-app.use("/api/settings", settingsRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+  // Static: uploaded images (only used for the default seed images now —
+  // new admin uploads go straight to Cloudinary, see routes/upload.js)
+  app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+  // Static: admin dashboard SPA
+  app.use("/admin", express.static(path.join(__dirname, "public", "admin")));
 
-// Fallback: send admin index.html for any /admin/* client-side route
-app.get("/admin/*splat", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin", "index.html"));
-});
+  // API routes
+  app.use("/api/auth", authRoutes);
+  app.use("/api/projects", createCrudRouter("projects"));
+  app.use("/api/services", createCrudRouter("services"));
+  app.use("/api/skills", createCrudRouter("skills"));
+  app.use("/api/milestones", createCrudRouter("milestones"));
+  app.use("/api/stats", createCrudRouter("stats"));
+  app.use("/api/messages", messagesRoutes);
+  app.use("/api/subscribers", subscribersRoutes);
+  app.use("/api/settings", settingsRoutes);
+  app.use("/api/upload", uploadRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
 
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: err.message || "Internal server error" });
-});
+  app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-app.listen(PORT, () => {
-  console.log(`The Creator Creations backend running on http://localhost:${PORT}`);
-  console.log(`Admin dashboard:      http://localhost:${PORT}/admin`);
-  console.log(`API base:             http://localhost:${PORT}/api`);
-});
+  // Fallback: send admin index.html for any /admin/* client-side route
+  app.get("/admin/*splat", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "admin", "index.html"));
+  });
+
+  app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Internal server error" });
+  });
+
+  app.listen(PORT, () => {
+    console.log(`The Creator Creations backend running on http://localhost:${PORT}`);
+    console.log(`Admin dashboard:      http://localhost:${PORT}/admin`);
+    console.log(`API base:             http://localhost:${PORT}/api`);
+  });
+}
+
+start();

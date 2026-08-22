@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import project1 from "@/assets/project-1.jpg";
 import project2 from "@/assets/project-2.jpg";
@@ -9,6 +10,7 @@ import project5 from "@/assets/project-5.jpg";
 import project6 from "@/assets/project-6.jpg";
 import { useProjects } from "@/lib/useSiteData";
 import { resolveImageUrl } from "@/lib/api";
+import { slugify } from "@/lib/slug";
 
 const slideMeta = [
   { title: "Chromatic Vision", subtitle: "A bold exploration of color and form", tag: "Brand Identity", fallback: project1 },
@@ -71,6 +73,7 @@ const SplitText = ({ text, className, delay = 0 }: { text: string; className?: s
 
 const FullscreenSlider = () => {
   const { data: apiProjects } = useProjects();
+  const navigate = useNavigate();
 
   const slides = useMemo(() => {
     return slideMeta.map((meta) => {
@@ -83,6 +86,10 @@ const FullscreenSlider = () => {
       };
     });
   }, [apiProjects]);
+
+  const handleViewProject = () => {
+    navigate(`/category/${slugify(slides[current].tag)}`);
+  };
 
   const [[current, direction], setCurrent] = useState([0, 0]);
   const progress = useMotionValue(0);
@@ -223,6 +230,7 @@ const FullscreenSlider = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1 }}
+                onClick={handleViewProject}
                 className="mt-8 flex items-center gap-3 group"
               >
                 <span className="w-14 h-14 rounded-full border-2 border-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">

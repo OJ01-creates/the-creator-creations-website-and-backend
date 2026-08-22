@@ -2,11 +2,15 @@ const path = require("path");
 const fs = require("fs");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
+const remoteStore = require("./remoteStore");
 
 const DB_PATH = path.join(__dirname, "data", "db.json");
 const SEED_PATH = path.join(__dirname, "data", "seed.json");
 
-// If the working db doesn't exist yet, bootstrap it from the seed file
+// By the time this module is required, server.js has already awaited
+// restoreDatabaseFile() (see bootstrap.js) — so if a remote snapshot existed,
+// DB_PATH already holds it. If it still doesn't exist here, this is a
+// genuine first-ever boot (or Redis isn't configured), so fall back to seed.
 if (!fs.existsSync(DB_PATH)) {
   fs.copyFileSync(SEED_PATH, DB_PATH);
 }
@@ -60,6 +64,19 @@ function migrate() {
 }
 
 migrate();
+
+// Push a fresh snapshot to Redis after every write, so the next container
+// restart (which happens automatically on Render's free tier after idle
+// time) restores exactly where things left off. This wraps lowdb's own
+// write() — every `.write()` call anywhere in the app already goes through
+// this same underlying method, so no route files need to change.
+const originalWrite = db.write.bind(db);
+db.write = (...args) => {
+  const result = originalWrite(...args);
+  const contents = fs.readFileSync(DB_PATH, "utf-8");
+  remoteStore.saveSnapshot(contents); // fire-and-forget, never blocks the response
+  return result;
+};
 
 function nextId(collection) {
   const current = db.get(`meta.nextId.${collection}`).value() || 1;

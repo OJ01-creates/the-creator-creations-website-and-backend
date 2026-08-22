@@ -9,6 +9,7 @@ import project5 from "@/assets/project-5.jpg";
 import project6 from "@/assets/project-6.jpg";
 import { useProjects } from "@/lib/useSiteData";
 import { resolveImageUrl } from "@/lib/api";
+import Lightbox from "@/components/Lightbox";
 
 const localFallbackImages = [project1, project2, project3, project4, project5, project6];
 
@@ -43,6 +44,7 @@ const ProjectSlider = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [lightboxProject, setLightboxProject] = useState<ProjectCardData | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
@@ -159,6 +161,7 @@ const ProjectSlider = () => {
               index={i}
               isActive={i === activeIndex}
               isDragging={isDragging}
+              onExpand={() => setLightboxProject(project)}
             />
           ))}
 
@@ -209,6 +212,13 @@ const ProjectSlider = () => {
           {String(activeIndex + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
         </span>
       </div>
+
+      <Lightbox
+        image={lightboxProject?.img || null}
+        title={lightboxProject?.title}
+        category={lightboxProject?.category}
+        onClose={() => setLightboxProject(null)}
+      />
     </section>
   );
 };
@@ -220,11 +230,13 @@ const ProjectCard = ({
   index,
   isActive,
   isDragging,
+  onExpand,
 }: {
   project: ProjectCardData;
   index: number;
   isActive: boolean;
   isDragging: boolean;
+  onExpand: () => void;
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -290,14 +302,22 @@ const ProjectCard = ({
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.4 }}
           >
-            <motion.div
+            <motion.button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpand();
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label={`View full image of ${project.title}`}
               initial={{ scale: 0, rotate: -90 }}
               animate={isHovered ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -90 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="w-16 h-16 rounded-full bg-primary flex items-center justify-center"
+              whileHover={{ scale: 1.1 }}
+              className="w-16 h-16 rounded-full bg-primary flex items-center justify-center cursor-pointer"
             >
               <ArrowUpRight className="w-6 h-6 text-primary-foreground" />
-            </motion.div>
+            </motion.button>
           </motion.div>
 
           {/* Year badge */}

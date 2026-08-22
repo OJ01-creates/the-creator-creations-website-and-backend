@@ -54,11 +54,20 @@ export interface Stat {
   order: number;
 }
 
+export interface SocialLink {
+  label: string;
+  url: string;
+}
+
 export interface SiteSettings {
   siteName?: string;
   tagline?: string;
   logoImage?: string;
   heroImage?: string;
+  primaryColor?: string;
+  accentColor?: string;
+  headingFont?: string;
+  bodyFont?: string;
   heroTitleLine1?: string;
   heroTitleHighlight?: string;
   heroTitleLine2?: string;
@@ -75,6 +84,7 @@ export interface SiteSettings {
   contactEmail?: string;
   contactPhone?: string;
   contactLocation?: string;
+  socialLinks?: SocialLink[];
 }
 
 /**
