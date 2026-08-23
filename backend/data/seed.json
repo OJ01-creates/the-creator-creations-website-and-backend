@@ -30,9 +30,9 @@
     "contactPhone": "+1 (555) 123-4567",
     "contactLocation": "New York, NY",
     "socialLinks": [
-      { "label": "Dribbble", "url": "#" },
-      { "label": "Behance", "url": "#" },
-      { "label": "Instagram", "url": "#" }
+      { "label": "Dribbble", "url": "" },
+      { "label": "Behance", "url": "" },
+      { "label": "Instagram", "url": "" }
     ]
   },
   "projects": [
@@ -59,8 +59,6 @@
     { "id": 5, "name": "Motion Design", "level": 85, "order": 5 },
     { "id": 6, "name": "Web Design", "level": 87, "order": 6 },
     { "id": 7, "name": "Web Development", "level": 80, "order": 7 },
-    { "id": 8, "name": "Photography", "level": 89, "order": 8 },
-    { "id": 9, "name": "Videography", "level": 84, "order": 9 },
     { "id": 10, "name": "Creative Direction", "level": 93, "order": 10 }
   ],
   "milestones": [

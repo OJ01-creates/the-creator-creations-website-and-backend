@@ -643,19 +643,35 @@ async function renderSettings(main) {
 
     const socialWrap = document.getElementById("social-links-wrap");
     function renderSocialRows() {
-      socialWrap.innerHTML = socialLinks.map((s, i) => `
-        <div class="form-row" style="margin-bottom:10px;align-items:center;grid-template-columns:1fr 1fr auto">
+      socialWrap.innerHTML = socialLinks.map((s, i) => {
+        const hasUrl = s.url && s.url.trim() && s.url.trim() !== "#";
+        return `
+        <div class="form-row" style="margin-bottom:10px;align-items:center;grid-template-columns:1fr 1fr auto auto">
           <input data-social-label="${i}" value="${escapeHtml(s.label || "")}" placeholder="Platform (e.g. Instagram)" />
-          <input data-social-url="${i}" value="${escapeHtml(s.url || "")}" placeholder="https://..." />
+          <input data-social-url="${i}" value="${escapeHtml(s.url || "")}" placeholder="https://instagram.com/yourhandle" />
+          <button type="button" class="btn btn-outline btn-sm" data-social-visit="${i}" ${hasUrl ? "" : "disabled"} title="${hasUrl ? "Open this link in a new tab" : "Enter a URL first"}">Visit ↗</button>
           <button type="button" class="btn btn-danger btn-sm" data-social-remove="${i}">Remove</button>
         </div>
-      `).join("") || `<p class="section-desc">No social links yet.</p>`;
+      `;
+      }).join("") || `<p class="section-desc">No social links yet.</p>`;
 
       socialWrap.querySelectorAll("[data-social-label]").forEach(input => {
         input.addEventListener("input", () => { socialLinks[Number(input.dataset.socialLabel)].label = input.value; });
       });
       socialWrap.querySelectorAll("[data-social-url]").forEach(input => {
-        input.addEventListener("input", () => { socialLinks[Number(input.dataset.socialUrl)].url = input.value; });
+        input.addEventListener("input", () => {
+          socialLinks[Number(input.dataset.socialUrl)].url = input.value;
+          const visitBtn = socialWrap.querySelector(`[data-social-visit="${input.dataset.socialUrl}"]`);
+          const hasUrl = input.value && input.value.trim() && input.value.trim() !== "#";
+          visitBtn.disabled = !hasUrl;
+          visitBtn.title = hasUrl ? "Open this link in a new tab" : "Enter a URL first";
+        });
+      });
+      socialWrap.querySelectorAll("[data-social-visit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const url = socialLinks[Number(btn.dataset.socialVisit)].url;
+          window.open(url, "_blank", "noopener,noreferrer");
+        });
       });
       socialWrap.querySelectorAll("[data-social-remove]").forEach(btn => {
         btn.addEventListener("click", () => {

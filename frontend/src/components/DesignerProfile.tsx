@@ -15,8 +15,6 @@ const defaultSkills = [
   { id: 5, name: "Motion Design", level: 85 },
   { id: 6, name: "Web Design", level: 87 },
   { id: 7, name: "Web Development", level: 80 },
-  { id: 8, name: "Photography", level: 89 },
-  { id: 9, name: "Videography", level: 84 },
   { id: 10, name: "Creative Direction", level: 93 },
 ];
 
