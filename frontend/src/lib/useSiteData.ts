@@ -28,6 +28,14 @@ export function useSkills() {
   return useQuery({ queryKey: ["skills"], queryFn: api.getSkills, ...liveOptions });
 }
 
+export function useTools() {
+  return useQuery({ queryKey: ["tools"], queryFn: api.getTools, ...liveOptions });
+}
+
+export function useFeaturedSlides() {
+  return useQuery({ queryKey: ["featuredSlides"], queryFn: api.getFeaturedSlides, ...liveOptions });
+}
+
 export function useMilestones() {
   return useQuery({ queryKey: ["milestones"], queryFn: api.getMilestones, ...liveOptions });
 }

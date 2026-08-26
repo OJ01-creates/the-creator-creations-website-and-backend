@@ -41,6 +41,8 @@ async function start() {
   app.use("/api/projects", createCrudRouter("projects"));
   app.use("/api/services", createCrudRouter("services"));
   app.use("/api/skills", createCrudRouter("skills"));
+  app.use("/api/tools", createCrudRouter("tools"));
+  app.use("/api/featured-slides", createCrudRouter("featuredSlides"));
   app.use("/api/milestones", createCrudRouter("milestones"));
   app.use("/api/stats", createCrudRouter("stats"));
   app.use("/api/messages", messagesRoutes);

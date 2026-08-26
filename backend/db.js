@@ -25,6 +25,8 @@ db.defaults({
   projects: [],
   services: [],
   skills: [],
+  tools: [],
+  featuredSlides: [],
   milestones: [],
   stats: [],
   messages: [],
@@ -46,6 +48,16 @@ function migrate() {
   const currentSettings = db.get("settings").value() || {};
   const mergedSettings = { ...seed.settings, ...currentSettings };
   db.set("settings", mergedSettings).write();
+
+  // Brand-new collections introduced after initial launch: seed them once
+  // from seed.json if the live database doesn't have any yet. After that,
+  // they're fully admin-managed — this only fires if the array is empty.
+  ["tools", "featuredSlides"].forEach((collectionName) => {
+    const current = db.get(collectionName).value() || [];
+    if (current.length === 0 && (seed[collectionName] || []).length > 0) {
+      db.set(collectionName, seed[collectionName]).write();
+    }
+  });
 
   // For collections keyed by id (projects/milestones), fill in an empty
   // `image` field from the seed default if the item still has none set.

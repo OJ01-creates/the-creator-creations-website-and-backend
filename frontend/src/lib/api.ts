@@ -38,6 +38,23 @@ export interface Skill {
   order: number;
 }
 
+export interface Tool {
+  id: number;
+  name: string;
+  logoUrl: string;
+  type: "tool" | "language";
+  order: number;
+}
+
+export interface FeaturedSlide {
+  id: number;
+  title: string;
+  subtitle: string;
+  tag: string;
+  image: string;
+  order: number;
+}
+
 export interface Milestone {
   id: number;
   year: string;
@@ -129,6 +146,8 @@ export const api = {
   getProjects: () => getJson<Project[]>("/projects"),
   getServices: () => getJson<Service[]>("/services"),
   getSkills: () => getJson<Skill[]>("/skills"),
+  getTools: () => getJson<Tool[]>("/tools"),
+  getFeaturedSlides: () => getJson<FeaturedSlide[]>("/featured-slides"),
   getMilestones: () => getJson<Milestone[]>("/milestones"),
   getStats: () => getJson<Stat[]>("/stats"),
 

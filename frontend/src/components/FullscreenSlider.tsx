@@ -8,17 +8,19 @@ import project3 from "@/assets/project-3.jpg";
 import project4 from "@/assets/project-4.jpg";
 import project5 from "@/assets/project-5.jpg";
 import project6 from "@/assets/project-6.jpg";
-import { useProjects } from "@/lib/useSiteData";
+import { useFeaturedSlides } from "@/lib/useSiteData";
 import { resolveImageUrl } from "@/lib/api";
 import { slugify } from "@/lib/slug";
 
-const slideMeta = [
-  { title: "Chromatic Vision", subtitle: "A bold exploration of color and form", tag: "Brand Identity", fallback: project1 },
-  { title: "Neon Pulse", subtitle: "Retro-futuristic poster series", tag: "Poster Design", fallback: project3 },
-  { title: "Prisma Forms", subtitle: "Sculptural light installations", tag: "Art Direction", fallback: project5 },
-  { title: "Aurum Luxe", subtitle: "Premium packaging identity", tag: "Packaging", fallback: project2 },
-  { title: "Fluid Spectrum", subtitle: "Experimental album artwork", tag: "Album Art", fallback: project6 },
-  { title: "Editorial Gold", subtitle: "Fashion editorial layouts", tag: "Editorial", fallback: project4 },
+const localFallbackImages = [project1, project3, project5, project2, project6, project4];
+
+const defaultSlides = [
+  { title: "Chromatic Vision", subtitle: "A bold exploration of color and form", tag: "Brand Identity", img: project1 },
+  { title: "Neon Pulse", subtitle: "Retro-futuristic poster series", tag: "Poster Design", img: project3 },
+  { title: "Prisma Forms", subtitle: "Sculptural light installations", tag: "Art Direction", img: project5 },
+  { title: "Aurum Luxe", subtitle: "Premium packaging identity", tag: "Packaging", img: project2 },
+  { title: "Fluid Spectrum", subtitle: "Experimental album artwork", tag: "Album Art", img: project6 },
+  { title: "Editorial Gold", subtitle: "Fashion editorial layouts", tag: "Editorial", img: project4 },
 ];
 
 // Ken Burns zoom directions per slide
@@ -72,35 +74,45 @@ const SplitText = ({ text, className, delay = 0 }: { text: string; className?: s
 );
 
 const FullscreenSlider = () => {
-  const { data: apiProjects } = useProjects();
+  const { data: apiSlides } = useFeaturedSlides();
   const navigate = useNavigate();
 
   const slides = useMemo(() => {
-    return slideMeta.map((meta) => {
-      const match = apiProjects?.find((p) => p.title.toLowerCase() === meta.title.toLowerCase());
-      return {
-        title: meta.title,
-        subtitle: meta.subtitle,
-        tag: match?.category || meta.tag,
-        img: resolveImageUrl(match?.image) || meta.fallback,
-      };
-    });
-  }, [apiProjects]);
-
-  const handleViewProject = () => {
-    navigate(`/category/${slugify(slides[current].tag)}`);
-  };
+    if (!apiSlides || apiSlides.length === 0) return defaultSlides;
+    return [...apiSlides]
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map((s, i) => ({
+        title: s.title,
+        subtitle: s.subtitle,
+        tag: s.tag,
+        img: resolveImageUrl(s.image) || localFallbackImages[i % localFallbackImages.length],
+      }));
+  }, [apiSlides]);
 
   const [[current, direction], setCurrent] = useState([0, 0]);
   const progress = useMotionValue(0);
   const progressWidth = useTransform(progress, [0, 1], ["0%", "100%"]);
+
+  // Keep the active slide in range if the slide count changes after a live update.
+  useEffect(() => {
+    if (current > slides.length - 1) {
+      setCurrent([0, 0]);
+      progress.set(0);
+    }
+  }, [slides.length, current, progress]);
+
+  const activeSlide = slides[Math.min(current, slides.length - 1)];
+
+  const handleViewProject = () => {
+    navigate(`/category/${slugify(activeSlide.tag)}`);
+  };
 
   const paginate = useCallback(
     (dir: number) => {
       setCurrent(([prev]) => [(prev + dir + slides.length) % slides.length, dir]);
       progress.set(0);
     },
-    [progress]
+    [progress, slides.length]
   );
 
   // Auto-play with progress tracking
@@ -160,8 +172,8 @@ const FullscreenSlider = () => {
           className="absolute inset-0"
         >
           <motion.img
-            src={slides[current].img}
-            alt={slides[current].title}
+            src={activeSlide.img}
+            alt={activeSlide.title}
             className="w-full h-full object-cover"
             animate={{
               scale: kb.scale,
@@ -205,14 +217,14 @@ const FullscreenSlider = () => {
               >
                 <span className="w-12 h-px bg-primary" />
                 <span className="text-xs tracking-[0.4em] uppercase text-primary font-body font-medium">
-                  {slides[current].tag}
+                  {activeSlide.tag}
                 </span>
               </motion.div>
 
               {/* Title with split text reveal */}
               <h2 className="font-display text-5xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.9] mb-4"
                 style={{ perspective: "600px" }}>
-                <SplitText text={slides[current].title} delay={0.2} />
+                <SplitText text={activeSlide.title} delay={0.2} />
               </h2>
 
               {/* Subtitle with slide-up */}
@@ -222,7 +234,7 @@ const FullscreenSlider = () => {
                 transition={{ duration: 0.7, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="text-muted-foreground text-lg md:text-xl font-body mt-4 max-w-md"
               >
-                {slides[current].subtitle}
+                {activeSlide.subtitle}
               </motion.p>
 
               {/* CTA button */}

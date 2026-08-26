@@ -95,6 +95,37 @@ const RESOURCES = {
       { key: "order", label: "Order" },
     ],
   },
+  tools: {
+    title: "Tools & Languages", desc: "Manage the icon lists shown under the designer's photo (\"Tools I Use\" and \"Languages I Code With\").",
+    fields: [
+      { key: "name", label: "Name", type: "text", required: true, placeholder: "Figma" },
+      { key: "logoUrl", label: "Logo URL", type: "text", required: true, placeholder: "https://.../logo.svg" },
+      { key: "type", label: "Section", type: "select", options: ["tool", "language"], required: true },
+      { key: "order", label: "Order", type: "number" },
+    ],
+    columns: [
+      { key: "logoUrl", label: "", isImage: true },
+      { key: "name", label: "Name" },
+      { key: "type", label: "Section" },
+      { key: "order", label: "Order" },
+    ],
+  },
+  "featured-slides": {
+    title: "Featured Slider", desc: "Manage the big cinematic fullscreen slider shown right after Selected Works.",
+    fields: [
+      { key: "title", label: "Title", type: "text", required: true },
+      { key: "subtitle", label: "Subtitle", type: "text", required: true },
+      { key: "tag", label: "Category tag", type: "text", required: true, placeholder: "Brand Identity" },
+      { key: "image", label: "Background image", type: "image" },
+      { key: "order", label: "Order", type: "number" },
+    ],
+    columns: [
+      { key: "image", label: "", isImage: true },
+      { key: "title", label: "Title" },
+      { key: "tag", label: "Tag" },
+      { key: "order", label: "Order" },
+    ],
+  },
   milestones: {
     title: "Journey / Milestones", desc: "Manage the career-timeline slider in the designer profile.",
     fields: [
@@ -194,6 +225,8 @@ const NAV = [
   { route: "projects", label: "Projects" },
   { route: "services", label: "Services" },
   { route: "skills", label: "Skills" },
+  { route: "tools", label: "Tools & Languages" },
+  { route: "featured-slides", label: "Featured Slider" },
   { route: "milestones", label: "Journey" },
   { route: "stats", label: "About Stats" },
   { route: "messages", label: "Messages" },

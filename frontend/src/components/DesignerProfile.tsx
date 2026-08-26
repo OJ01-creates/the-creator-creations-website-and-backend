@@ -4,7 +4,7 @@ import designerImg from "@/assets/designer-profile.jpg";
 import project1 from "@/assets/project-1.jpg";
 import project3 from "@/assets/project-3.jpg";
 import project5 from "@/assets/project-5.jpg";
-import { useSkills, useMilestones, useSettings } from "@/lib/useSiteData";
+import { useSkills, useTools, useMilestones, useSettings } from "@/lib/useSiteData";
 import { resolveImageUrl } from "@/lib/api";
 
 const defaultSkills = [
@@ -22,18 +22,17 @@ const milestoneFallbackImages = [project1, project3, project5];
 
 const DEVICON_BASE = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
 
-const designTools = [
+const defaultDesignTools = [
   { name: "Figma", logo: `${DEVICON_BASE}/figma/figma-original.svg` },
   { name: "Photoshop", logo: `${DEVICON_BASE}/photoshop/photoshop-plain.svg` },
   { name: "Illustrator", logo: `${DEVICON_BASE}/illustrator/illustrator-plain.svg` },
   { name: "After Effects", logo: `${DEVICON_BASE}/aftereffects/aftereffects-plain.svg` },
-  { name: "Premiere Pro", logo: `${DEVICON_BASE}/premierepro/premierepro-plain.svg` },
   { name: "Blender", logo: `${DEVICON_BASE}/blender/blender-original.svg` },
   { name: "VS Code", logo: `${DEVICON_BASE}/vscode/vscode-original.svg` },
   { name: "Git", logo: `${DEVICON_BASE}/git/git-original.svg` },
 ];
 
-const codeLanguages = [
+const defaultCodeLanguages = [
   { name: "HTML5", logo: `${DEVICON_BASE}/html5/html5-original.svg` },
   { name: "CSS3", logo: `${DEVICON_BASE}/css3/css3-original.svg` },
   { name: "JavaScript", logo: `${DEVICON_BASE}/javascript/javascript-original.svg` },
@@ -69,6 +68,7 @@ const defaultMilestones = [
 
 const DesignerProfile = () => {
   const { data: apiSkills } = useSkills();
+  const { data: apiTools } = useTools();
   const { data: apiMilestones } = useMilestones();
   const { data: settings } = useSettings();
 
@@ -76,6 +76,18 @@ const DesignerProfile = () => {
     if (!apiSkills || apiSkills.length === 0) return defaultSkills;
     return [...apiSkills].sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [apiSkills]);
+
+  const designTools = useMemo(() => {
+    const tools = (apiTools || []).filter((t) => t.type === "tool").sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (tools.length === 0) return defaultDesignTools;
+    return tools.map((t) => ({ name: t.name, logo: t.logoUrl }));
+  }, [apiTools]);
+
+  const codeLanguages = useMemo(() => {
+    const langs = (apiTools || []).filter((t) => t.type === "language").sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (langs.length === 0) return defaultCodeLanguages;
+    return langs.map((t) => ({ name: t.name, logo: t.logoUrl }));
+  }, [apiTools]);
 
   const milestones = useMemo(() => {
     if (!apiMilestones || apiMilestones.length === 0) return defaultMilestones;

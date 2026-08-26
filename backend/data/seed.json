@@ -61,6 +61,30 @@
     { "id": 7, "name": "Web Development", "level": 80, "order": 7 },
     { "id": 10, "name": "Creative Direction", "level": 93, "order": 10 }
   ],
+  "tools": [
+    { "id": 1, "name": "Figma", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg", "type": "tool", "order": 1 },
+    { "id": 2, "name": "Photoshop", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/photoshop/photoshop-plain.svg", "type": "tool", "order": 2 },
+    { "id": 3, "name": "Illustrator", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/illustrator/illustrator-plain.svg", "type": "tool", "order": 3 },
+    { "id": 4, "name": "After Effects", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/aftereffects/aftereffects-plain.svg", "type": "tool", "order": 4 },
+    { "id": 5, "name": "Blender", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/blender/blender-original.svg", "type": "tool", "order": 5 },
+    { "id": 6, "name": "VS Code", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg", "type": "tool", "order": 6 },
+    { "id": 7, "name": "Git", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg", "type": "tool", "order": 7 },
+    { "id": 8, "name": "HTML5", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg", "type": "language", "order": 1 },
+    { "id": 9, "name": "CSS3", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg", "type": "language", "order": 2 },
+    { "id": 10, "name": "JavaScript", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg", "type": "language", "order": 3 },
+    { "id": 11, "name": "TypeScript", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg", "type": "language", "order": 4 },
+    { "id": 12, "name": "React", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg", "type": "language", "order": 5 },
+    { "id": 13, "name": "Node.js", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg", "type": "language", "order": 6 },
+    { "id": 14, "name": "Python", "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg", "type": "language", "order": 7 }
+  ],
+  "featuredSlides": [
+    { "id": 1, "title": "Chromatic Vision", "subtitle": "A bold exploration of color and form", "tag": "Brand Identity", "image": "/uploads/project-1.jpg", "order": 1 },
+    { "id": 2, "title": "Neon Pulse", "subtitle": "Retro-futuristic poster series", "tag": "Poster Design", "image": "/uploads/project-3.jpg", "order": 2 },
+    { "id": 3, "title": "Prisma Forms", "subtitle": "Sculptural light installations", "tag": "Art Direction", "image": "/uploads/project-5.jpg", "order": 3 },
+    { "id": 4, "title": "Aurum Luxe", "subtitle": "Premium packaging identity", "tag": "Packaging", "image": "/uploads/project-2.jpg", "order": 4 },
+    { "id": 5, "title": "Fluid Spectrum", "subtitle": "Experimental album artwork", "tag": "Album Art", "image": "/uploads/project-6.jpg", "order": 5 },
+    { "id": 6, "title": "Editorial Gold", "subtitle": "Fashion editorial layouts", "tag": "Editorial", "image": "/uploads/project-4.jpg", "order": 6 }
+  ],
   "milestones": [
     { "id": 1, "year": "2013", "title": "The Beginning", "description": "Started as a junior designer at a boutique agency in Brooklyn, learning the craft of visual storytelling.", "image": "/uploads/project-1.jpg", "order": 1 },
     { "id": 2, "year": "2017", "title": "Going Independent", "description": "Launched The Creator Creations with a vision to create bold, uncompromising design that challenges conventions.", "image": "/uploads/project-3.jpg", "order": 2 },
@@ -74,5 +98,5 @@
   ],
   "messages": [],
   "subscribers": [],
-  "meta": { "nextId": { "projects": 7, "services": 7, "skills": 11, "milestones": 4, "stats": 5, "messages": 1, "subscribers": 1 } }
+  "meta": { "nextId": { "projects": 7, "services": 7, "skills": 11, "tools": 15, "featuredSlides": 7, "milestones": 4, "stats": 5, "messages": 1, "subscribers": 1 } }
 }
