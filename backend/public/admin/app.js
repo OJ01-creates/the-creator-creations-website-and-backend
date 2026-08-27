@@ -57,6 +57,7 @@ const RESOURCES = {
       { key: "year", label: "Year", type: "text", required: true },
       { key: "color", label: "Accent color (CSS)", type: "text", placeholder: "hsl(45, 100%, 55%)" },
       { key: "image", label: "Image", type: "image" },
+      { key: "liveUrl", label: "Live site / demo URL (optional)", type: "text", placeholder: "https://yourdemo.com — leave blank to show the full-image preview instead" },
       { key: "order", label: "Order", type: "number" },
     ],
     columns: [
@@ -117,6 +118,7 @@ const RESOURCES = {
       { key: "subtitle", label: "Subtitle", type: "text", required: true },
       { key: "tag", label: "Category tag", type: "text", required: true, placeholder: "Brand Identity" },
       { key: "image", label: "Background image", type: "image" },
+      { key: "liveUrl", label: "Live site / demo URL (optional)", type: "text", placeholder: "https://yourdemo.com — leave blank to link to the category page instead" },
       { key: "order", label: "Order", type: "number" },
     ],
     columns: [

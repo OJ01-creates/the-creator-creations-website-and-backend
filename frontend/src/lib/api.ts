@@ -20,6 +20,7 @@ export interface Project {
   year: string;
   color: string;
   image: string;
+  liveUrl?: string;
   order: number;
 }
 
@@ -52,6 +53,7 @@ export interface FeaturedSlide {
   subtitle: string;
   tag: string;
   image: string;
+  liveUrl?: string;
   order: number;
 }
 

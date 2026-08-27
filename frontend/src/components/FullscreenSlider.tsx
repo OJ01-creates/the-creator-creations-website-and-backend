@@ -15,12 +15,12 @@ import { slugify } from "@/lib/slug";
 const localFallbackImages = [project1, project3, project5, project2, project6, project4];
 
 const defaultSlides = [
-  { title: "Chromatic Vision", subtitle: "A bold exploration of color and form", tag: "Brand Identity", img: project1 },
-  { title: "Neon Pulse", subtitle: "Retro-futuristic poster series", tag: "Poster Design", img: project3 },
-  { title: "Prisma Forms", subtitle: "Sculptural light installations", tag: "Art Direction", img: project5 },
-  { title: "Aurum Luxe", subtitle: "Premium packaging identity", tag: "Packaging", img: project2 },
-  { title: "Fluid Spectrum", subtitle: "Experimental album artwork", tag: "Album Art", img: project6 },
-  { title: "Editorial Gold", subtitle: "Fashion editorial layouts", tag: "Editorial", img: project4 },
+  { title: "Chromatic Vision", subtitle: "A bold exploration of color and form", tag: "Brand Identity", img: project1, liveUrl: "" },
+  { title: "Neon Pulse", subtitle: "Retro-futuristic poster series", tag: "Poster Design", img: project3, liveUrl: "" },
+  { title: "Prisma Forms", subtitle: "Sculptural light installations", tag: "Art Direction", img: project5, liveUrl: "" },
+  { title: "Aurum Luxe", subtitle: "Premium packaging identity", tag: "Packaging", img: project2, liveUrl: "" },
+  { title: "Fluid Spectrum", subtitle: "Experimental album artwork", tag: "Album Art", img: project6, liveUrl: "" },
+  { title: "Editorial Gold", subtitle: "Fashion editorial layouts", tag: "Editorial", img: project4, liveUrl: "" },
 ];
 
 // Ken Burns zoom directions per slide
@@ -86,6 +86,7 @@ const FullscreenSlider = () => {
         subtitle: s.subtitle,
         tag: s.tag,
         img: resolveImageUrl(s.image) || localFallbackImages[i % localFallbackImages.length],
+        liveUrl: s.liveUrl || "",
       }));
   }, [apiSlides]);
 
@@ -104,7 +105,11 @@ const FullscreenSlider = () => {
   const activeSlide = slides[Math.min(current, slides.length - 1)];
 
   const handleViewProject = () => {
-    navigate(`/category/${slugify(activeSlide.tag)}`);
+    if (activeSlide.liveUrl) {
+      window.open(activeSlide.liveUrl, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(`/category/${slugify(activeSlide.tag)}`);
+    }
   };
 
   const paginate = useCallback(
@@ -197,7 +202,7 @@ const FullscreenSlider = () => {
       />
 
       {/* Content overlay - left aligned, editorial style */}
-      <div className="absolute inset-0 z-10 flex items-center">
+      <div className="absolute inset-0 z-20 flex items-center pb-24 md:pb-28">
         <div className="max-w-7xl mx-auto px-6 md:px-16 w-full">
           <AnimatePresence mode="wait">
             <motion.div
@@ -222,7 +227,7 @@ const FullscreenSlider = () => {
               </motion.div>
 
               {/* Title with split text reveal */}
-              <h2 className="font-display text-5xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.9] mb-4"
+              <h2 className="font-display text-5xl md:text-7xl lg:text-8xl font-extrabold text-foreground leading-[0.9] mb-4"
                 style={{ perspective: "600px" }}>
                 <SplitText text={activeSlide.title} delay={0.2} />
               </h2>
@@ -249,7 +254,7 @@ const FullscreenSlider = () => {
                   <Play className="w-5 h-5 ml-0.5 text-primary group-hover:text-primary-foreground transition-colors" />
                 </span>
                 <span className="text-sm tracking-[0.2em] uppercase text-foreground font-body font-medium group-hover:text-primary transition-colors">
-                  View Project
+                  {activeSlide.liveUrl ? "Visit Live Site" : "View Project"}
                 </span>
               </motion.button>
             </motion.div>

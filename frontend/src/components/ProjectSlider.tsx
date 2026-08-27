@@ -14,12 +14,12 @@ import Lightbox from "@/components/Lightbox";
 const localFallbackImages = [project1, project2, project3, project4, project5, project6];
 
 const defaultProjects = [
-  { id: 1, img: project1, title: "Chromatic Vision", category: "Brand Identity", year: "2025", color: "hsl(45, 100%, 55%)" },
-  { id: 2, img: project2, title: "Aurum Luxe", category: "Packaging Design", year: "2025", color: "hsl(30, 100%, 50%)" },
-  { id: 3, img: project3, title: "Neon Pulse", category: "Poster Design", year: "2024", color: "hsl(330, 80%, 60%)" },
-  { id: 4, img: project4, title: "Editorial Gold", category: "Magazine Layout", year: "2024", color: "hsl(45, 100%, 55%)" },
-  { id: 5, img: project5, title: "Prisma Forms", category: "Art Direction", year: "2024", color: "hsl(280, 70%, 50%)" },
-  { id: 6, img: project6, title: "Fluid Spectrum", category: "Album Art", year: "2023", color: "hsl(330, 80%, 60%)" },
+  { id: 1, img: project1, title: "Chromatic Vision", category: "Brand Identity", year: "2025", color: "hsl(45, 100%, 55%)", liveUrl: "" },
+  { id: 2, img: project2, title: "Aurum Luxe", category: "Packaging Design", year: "2025", color: "hsl(30, 100%, 50%)", liveUrl: "" },
+  { id: 3, img: project3, title: "Neon Pulse", category: "Poster Design", year: "2024", color: "hsl(330, 80%, 60%)", liveUrl: "" },
+  { id: 4, img: project4, title: "Editorial Gold", category: "Magazine Layout", year: "2024", color: "hsl(45, 100%, 55%)", liveUrl: "" },
+  { id: 5, img: project5, title: "Prisma Forms", category: "Art Direction", year: "2024", color: "hsl(280, 70%, 50%)", liveUrl: "" },
+  { id: 6, img: project6, title: "Fluid Spectrum", category: "Album Art", year: "2023", color: "hsl(330, 80%, 60%)", liveUrl: "" },
 ];
 
 const CARD_WIDTH = 420;
@@ -39,6 +39,7 @@ const ProjectSlider = () => {
         year: p.year,
         color: p.color || "hsl(45, 100%, 55%)",
         img: resolveImageUrl(p.image) || localFallbackImages[i % localFallbackImages.length],
+        liveUrl: p.liveUrl || "",
       }));
   }, [apiProjects]);
 
@@ -161,7 +162,13 @@ const ProjectSlider = () => {
               index={i}
               isActive={i === activeIndex}
               isDragging={isDragging}
-              onExpand={() => setLightboxProject(project)}
+              onExpand={() => {
+                if (project.liveUrl) {
+                  window.open(project.liveUrl, "_blank", "noopener,noreferrer");
+                } else {
+                  setLightboxProject(project);
+                }
+              }}
             />
           ))}
 
@@ -223,7 +230,7 @@ const ProjectSlider = () => {
   );
 };
 
-type ProjectCardData = { id: number; img: string; title: string; category: string; year: string; color: string };
+type ProjectCardData = { id: number; img: string; title: string; category: string; year: string; color: string; liveUrl: string };
 
 const ProjectCard = ({
   project,
@@ -309,7 +316,7 @@ const ProjectCard = ({
                 onExpand();
               }}
               onPointerDown={(e) => e.stopPropagation()}
-              aria-label={`View full image of ${project.title}`}
+              aria-label={project.liveUrl ? `Visit live site for ${project.title}` : `View full image of ${project.title}`}
               initial={{ scale: 0, rotate: -90 }}
               animate={isHovered ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -90 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
