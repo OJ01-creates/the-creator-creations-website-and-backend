@@ -50,7 +50,7 @@ function toast(message, isError = false) {
 /* ---------------- Resource configs ---------------- */
 const RESOURCES = {
   projects: {
-    title: "Projects", desc: "Manage the portfolio pieces shown in Selected Works.",
+    title: "Projects", desc: "Manage the portfolio pieces shown in Selected Works and on category pages.",
     fields: [
       { key: "title", label: "Title", type: "text", required: true },
       { key: "category", label: "Category", type: "text", required: true },
@@ -58,6 +58,7 @@ const RESOURCES = {
       { key: "color", label: "Accent color (CSS)", type: "text", placeholder: "hsl(45, 100%, 55%)" },
       { key: "image", label: "Image", type: "image" },
       { key: "liveUrl", label: "Live site / demo URL (optional)", type: "text", placeholder: "https://yourdemo.com — leave blank to show the full-image preview instead" },
+      { key: "featured", label: "Show on homepage (Selected Works)", type: "checkbox", hint: "Turn this off to keep a project out of the homepage slider — it will still appear on its category page when someone clicks through." },
       { key: "order", label: "Order", type: "number" },
     ],
     columns: [
@@ -65,6 +66,7 @@ const RESOURCES = {
       { key: "title", label: "Title" },
       { key: "category", label: "Category" },
       { key: "year", label: "Year" },
+      { key: "featured", label: "Homepage", isBoolean: true },
       { key: "order", label: "Order" },
     ],
   },
@@ -344,6 +346,8 @@ async function loadResourceTable(resourceKey) {
             <tr>
               ${config.columns.map(c => c.isImage
                 ? `<td>${item[c.key] ? `<img class="thumb" src="${item[c.key]}" />` : `<div class="thumb"></div>`}</td>`
+                : c.isBoolean
+                ? `<td>${item[c.key] !== false ? `<span class="badge badge-primary">Yes</span>` : `<span class="badge badge-muted">No</span>`}</td>`
                 : `<td>${escapeHtml(String(item[c.key] ?? ""))}</td>`
               ).join("")}
               <td class="actions">
@@ -433,8 +437,13 @@ function openResourceModal(resourceKey, item) {
     const fd = new FormData(e.target);
     const payload = {};
     config.fields.forEach(f => {
-      let val = fd.get(f.key);
-      if (f.type === "number") val = val === "" ? 0 : Number(val);
+      let val;
+      if (f.type === "checkbox") {
+        val = fd.get(f.key) !== null; // present in FormData only when checked
+      } else {
+        val = fd.get(f.key);
+        if (f.type === "number") val = val === "" ? 0 : Number(val);
+      }
       payload[f.key] = val;
     });
 
@@ -455,7 +464,7 @@ function openResourceModal(resourceKey, item) {
 }
 
 function renderField(f, item) {
-  const value = item ? (item[f.key] ?? "") : (f.type === "number" ? 0 : "");
+  const value = item ? (item[f.key] ?? "") : (f.type === "number" ? 0 : f.type === "checkbox" ? true : "");
   if (f.type === "textarea") {
     return `<label>${f.label}</label><textarea name="${f.key}" rows="3" placeholder="${f.placeholder || ""}">${escapeHtml(String(value))}</textarea>`;
   }
@@ -484,6 +493,16 @@ function renderField(f, item) {
       <select name="${f.key}">
         ${options.map(opt => `<option value="${opt}" ${String(value) === opt ? "selected" : ""}>${opt}</option>`).join("")}
       </select>
+    `;
+  }
+  if (f.type === "checkbox") {
+    const checked = value === true || value === "true";
+    return `
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:16px;text-transform:none;letter-spacing:normal;font-size:14px;color:var(--text)">
+        <input type="checkbox" name="${f.key}" ${checked ? "checked" : ""} style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)" />
+        ${f.label}
+      </label>
+      ${f.hint ? `<p class="hint-text" style="margin-top:-12px">${f.hint}</p>` : ""}
     `;
   }
   return `<label>${f.label}${f.required ? " *" : ""}</label><input name="${f.key}" type="${f.type === "number" ? "number" : "text"}" value="${escapeHtml(String(value))}" placeholder="${f.placeholder || ""}" ${f.required ? "required" : ""} />`;

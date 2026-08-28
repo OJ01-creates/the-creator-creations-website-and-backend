@@ -31,6 +31,9 @@ const ProjectSlider = () => {
   const projects = useMemo(() => {
     if (!apiProjects || apiProjects.length === 0) return defaultProjects;
     return [...apiProjects]
+      // Projects with "Show on homepage" turned off stay out of this slider —
+      // they're still fully visible on their category page (see CategoryPage.tsx).
+      .filter((p) => p.featured !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0))
       .map((p, i) => ({
         id: p.id,

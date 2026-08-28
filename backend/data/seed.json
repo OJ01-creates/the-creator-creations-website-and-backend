@@ -42,7 +42,8 @@
     { "id": 4, "title": "Editorial Gold", "category": "Magazine Layout", "year": "2024", "color": "hsl(45, 100%, 55%)", "image": "/uploads/project-4.jpg", "liveUrl": "", "featured": true, "order": 4 },
     { "id": 5, "title": "Prisma Forms", "category": "Art Direction", "year": "2024", "color": "hsl(280, 70%, 50%)", "image": "/uploads/project-5.jpg", "liveUrl": "", "featured": true, "order": 5 },
     { "id": 6, "title": "Fluid Spectrum", "category": "Album Art", "year": "2023", "color": "hsl(330, 80%, 60%)", "image": "/uploads/project-6.jpg", "liveUrl": "", "featured": true, "order": 6 },
-    { "id": 7, "title": "Studio Portfolio Site", "category": "Web Design", "year": "2026", "color": "hsl(200, 90%, 55%)", "image": "/uploads/project-1.jpg", "liveUrl": "https://example.com", "featured": true, "order": 7 }
+    { "id": 7, "title": "Studio Portfolio Site", "category": "Web Design", "year": "2026", "color": "hsl(200, 90%, 55%)", "image": "/uploads/project-1.jpg", "liveUrl": "https://example.com", "featured": true, "order": 7 },
+    { "id": 8, "title": "E-Commerce Redesign", "category": "Web Design", "year": "2026", "color": "hsl(200, 90%, 55%)", "image": "/uploads/project-2.jpg", "liveUrl": "https://example.com", "featured": false, "order": 8 }
   ],
   "services": [
     { "id": 1, "title": "Brand Identity", "description": "Complete visual identity systems that define and differentiate.", "icon": "Palette", "order": 1 },
@@ -100,5 +101,5 @@
   ],
   "messages": [],
   "subscribers": [],
-  "meta": { "nextId": { "projects": 8, "services": 7, "skills": 11, "tools": 15, "featuredSlides": 8, "milestones": 4, "stats": 5, "messages": 1, "subscribers": 1 } }
+  "meta": { "nextId": { "projects": 9, "services": 7, "skills": 11, "tools": 15, "featuredSlides": 8, "milestones": 4, "stats": 5, "messages": 1, "subscribers": 1 } }
 }

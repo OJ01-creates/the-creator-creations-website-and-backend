@@ -21,6 +21,7 @@ export interface Project {
   color: string;
   image: string;
   liveUrl?: string;
+  featured?: boolean;
   order: number;
 }
 
