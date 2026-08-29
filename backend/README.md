@@ -14,6 +14,9 @@ Node.js, Express and a lightweight JSON file database (no external database serv
   step) styled to match the site's dark/gold aesthetic, with full CRUD screens, image
   upload, and a messages/subscribers inbox.
 - **Image uploads** via `multer`, served back out of `/uploads`.
+- **Project demo hosting** — upload a static site export (.zip) for any project and it deploys
+  live at `/demos/<slug>/`, with "View Project" / the arrow icon automatically linking straight
+  to it.
 
 ## Getting started
 
@@ -130,9 +133,41 @@ For a production deployment with many concurrent writers, you'd eventually want 
 database (Postgres/MySQL) instead of this snapshot approach — the route files are
 already organized so only `db.js` would need to change.
 
+## Hosting project demos ("View Project" → your actual site)
+
+Any project can have a real, live demo hosted right on your backend, so clicking its
+arrow icon (or "View Project" on the Featured Slider) opens the actual site instead of
+just a full-image preview or category page.
+
+**What to upload:** a `.zip` of a *static site export* — plain HTML/CSS/JS, or the built
+output of a framework (e.g. run `npm run build` in a React/Vue/Vite project and zip up
+the resulting `dist` folder). It needs an `index.html` either right at the root of the
+zip, or inside a single wrapping folder (both are handled automatically). This does
+**not** work for sites that need their own live server, database, or API — only static
+files.
+
+**How to use it:**
+1. In `/admin → Projects`, edit an existing project (you have to save it once before a
+   demo can attach to it).
+2. Scroll to **Demo Source Code**, choose your `.zip`, and click **Upload & Deploy Demo**.
+3. It deploys immediately at `/demos/project-<id>/` and the **Live URL** field above
+   updates automatically — click **Save Changes** to finish.
+
+The demo survives restarts the same way images do — it needs the same Cloudinary setup
+from above (the original zip is backed up there and automatically re-deployed on the
+next boot if the local copy is ever missing). Without Cloudinary configured, demos still
+deploy and work immediately, they just won't survive a restart yet.
+
+To remove a demo, use the **Remove Demo** button in the same section (this doesn't clear
+the Live URL field automatically — clear it yourself if you want the arrow to go back to
+the full-image preview instead).
+
 ## Security notes
 
 - Change the default admin password and `JWT_SECRET` before deploying.
 - The JSON database is not encrypted; treat `data/db.json` as sensitive if you store
   personal contact data in it.
 - Uploaded files are limited to 8MB and common image extensions.
+- Project demos are served from the same domain as the rest of your site (under `/demos`).
+  Only upload your own site's code — since this runs your uploaded HTML/JS directly in
+  visitors' browsers, treat it the same as you would hosting the files anywhere else.

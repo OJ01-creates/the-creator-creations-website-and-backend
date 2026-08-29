@@ -1,4 +1,4 @@
-const { restoreDatabaseFile } = require("./bootstrap");
+const { restoreDatabaseFile, restoreDemoSites } = require("./bootstrap");
 
 /**
  * Everything that touches the database (db.js and every route file) is
@@ -10,6 +10,7 @@ const { restoreDatabaseFile } = require("./bootstrap");
  */
 async function start() {
   await restoreDatabaseFile();
+  await restoreDemoSites();
 
   const express = require("express");
   const cors = require("cors");
@@ -20,6 +21,7 @@ async function start() {
   const subscribersRoutes = require("./routes/subscribers");
   const settingsRoutes = require("./routes/settings");
   const uploadRoutes = require("./routes/upload");
+  const demoRoutes = require("./routes/demo");
   const dashboardRoutes = require("./routes/dashboard");
   const createCrudRouter = require("./routes/crudFactory");
 
@@ -33,12 +35,16 @@ async function start() {
   // new admin uploads go straight to Cloudinary, see routes/upload.js)
   app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+  // Static: deployed project demo sites (uploaded via /admin → Projects)
+  app.use("/demos", express.static(path.join(__dirname, "demos")));
+
   // Static: admin dashboard SPA
   app.use("/admin", express.static(path.join(__dirname, "public", "admin")));
 
   // API routes
   app.use("/api/auth", authRoutes);
   app.use("/api/projects", createCrudRouter("projects"));
+  app.use("/api/projects", demoRoutes);
   app.use("/api/services", createCrudRouter("services"));
   app.use("/api/skills", createCrudRouter("skills"));
   app.use("/api/tools", createCrudRouter("tools"));

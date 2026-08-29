@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const remoteStore = require("./remoteStore");
+const { extractSite, DEMOS_DIR } = require("./lib/siteDemos");
 
 const DB_PATH = path.join(__dirname, "data", "db.json");
 
@@ -23,4 +24,40 @@ async function restoreDatabaseFile() {
   }
 }
 
-module.exports = { restoreDatabaseFile };
+/**
+ * Call this right after restoreDatabaseFile(), still before the server
+ * starts listening. Re-downloads and re-extracts any project demo sites
+ * whose local files are missing (e.g. after Render wiped the disk on
+ * restart), using the backup zip URL saved in Cloudinary when each demo
+ * was originally uploaded (see routes/demo.js).
+ */
+async function restoreDemoSites() {
+  if (!fs.existsSync(DB_PATH)) return;
+
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+  } catch {
+    return;
+  }
+
+  const withDemos = (data.projects || []).filter((p) => p.demoZipUrl && p.demoSlug);
+  if (withDemos.length === 0) return;
+
+  for (const project of withDemos) {
+    const destDir = path.join(DEMOS_DIR, project.demoSlug);
+    if (fs.existsSync(path.join(destDir, "index.html"))) continue; // already present, nothing to do
+
+    try {
+      const res = await fetch(project.demoZipUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buffer = Buffer.from(await res.arrayBuffer());
+      extractSite(buffer, destDir);
+      console.log(`[bootstrap] Restored demo site for project ${project.id} (${project.demoSlug}).`);
+    } catch (err) {
+      console.error(`[bootstrap] Failed to restore demo for project ${project.id}:`, err.message);
+    }
+  }
+}
+
+module.exports = { restoreDatabaseFile, restoreDemoSites };

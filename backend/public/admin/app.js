@@ -408,6 +408,80 @@ function wireImageFields(container, fields) {
   });
 }
 
+/** The "Demo Source Code" block inside a Project's edit modal — upload a static-site .zip and it deploys live. */
+function renderDemoSection(item) {
+  if (!item) {
+    return `
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+        <h3 style="margin:0 0 6px">Demo Source Code</h3>
+        <p class="section-desc">Save this project first — you can upload its live demo once it exists.</p>
+      </div>
+    `;
+  }
+  return `
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+      <h3 style="margin:0 0 6px">Demo Source Code</h3>
+      <p class="section-desc">
+        Upload a static site export as a .zip (an index.html at its root, or inside one wrapping folder —
+        e.g. the "dist" folder from "npm run build"). It deploys immediately and fills in the Live URL field above.
+      </p>
+      <input type="file" accept=".zip" id="demo-zip-input" style="margin-bottom:10px" />
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" class="btn btn-outline btn-sm" id="demo-upload-btn">Upload &amp; Deploy Demo</button>
+        ${item.demoSlug ? `<button type="button" class="btn btn-danger btn-sm" id="demo-remove-btn">Remove Demo</button>` : ""}
+      </div>
+      <div id="demo-upload-status" class="hint-text" style="margin-top:10px"></div>
+    </div>
+  `;
+}
+
+function wireDemoSection(overlay, item) {
+  if (!item) return; // nothing to wire for brand-new (unsaved) projects
+
+  const uploadBtn = overlay.querySelector("#demo-upload-btn");
+  const zipInput = overlay.querySelector("#demo-zip-input");
+  const statusEl = overlay.querySelector("#demo-upload-status");
+  const liveUrlInput = overlay.querySelector('[name="liveUrl"]');
+  if (!uploadBtn) return;
+
+  uploadBtn.addEventListener("click", async () => {
+    const file = zipInput.files[0];
+    if (!file) {
+      toast("Choose a .zip file first", true);
+      return;
+    }
+    statusEl.textContent = "Uploading and deploying — this can take a moment for larger sites…";
+    uploadBtn.disabled = true;
+    const fd = new FormData();
+    fd.append("sourceZip", file);
+    try {
+      const res = await api(`/projects/${item.id}/demo`, { method: "POST", body: fd, isForm: true });
+      if (liveUrlInput) liveUrlInput.value = res.demoUrl;
+      statusEl.textContent = `Live at ${res.demoUrl}`;
+      toast(res.warning || "Demo deployed! Don't forget to also click Save Changes below.");
+    } catch (e) {
+      statusEl.textContent = "";
+      toast(e.message, true);
+    } finally {
+      uploadBtn.disabled = false;
+    }
+  });
+
+  const removeBtn = overlay.querySelector("#demo-remove-btn");
+  if (removeBtn) {
+    removeBtn.addEventListener("click", async () => {
+      if (!confirm("Remove this demo? This won't clear the Live URL field automatically — edit it yourself if needed.")) return;
+      try {
+        await api(`/projects/${item.id}/demo`, { method: "DELETE" });
+        toast("Demo removed");
+        removeBtn.remove();
+      } catch (e) {
+        toast(e.message, true);
+      }
+    });
+  }
+}
+
 function openResourceModal(resourceKey, item) {
   const config = RESOURCES[resourceKey];
   const isEdit = !!item;
@@ -423,6 +497,7 @@ function openResourceModal(resourceKey, item) {
           <button type="submit" class="btn">${isEdit ? "Save Changes" : "Create"}</button>
         </div>
       </form>
+      ${resourceKey === "projects" ? renderDemoSection(item) : ""}
     </div>
   `;
   document.body.appendChild(overlay);
@@ -431,6 +506,7 @@ function openResourceModal(resourceKey, item) {
   overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
 
   wireImageFields(overlay, config.fields);
+  if (resourceKey === "projects") wireDemoSection(overlay, item);
 
   overlay.querySelector("#resource-form").addEventListener("submit", async (e) => {
     e.preventDefault();

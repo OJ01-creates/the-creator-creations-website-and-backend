@@ -2,6 +2,11 @@ node_modules/
 data/db.json
 .env
 
+# Deployed project demo sites are extracted here at runtime and restored
+# automatically from Cloudinary on boot (see bootstrap.js) — never need to
+# be committed, and would bloat the repo since they're full site builds.
+demos/
+
 # Ignore everything in uploads/ EXCEPT the default seed images that ship
 # with the project (these are referenced by data/seed.json and must be
 # tracked in git so they exist on the deployed server). Any new image
