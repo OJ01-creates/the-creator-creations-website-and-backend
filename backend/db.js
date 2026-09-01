@@ -90,6 +90,22 @@ db.write = (...args) => {
   return result;
 };
 
+/**
+ * Emergency access recovery: if you're ever locked out of /admin, set
+ * RESET_ADMIN_PASSWORD as an environment variable on your host (e.g. Render
+ * → your service → Environment) to whatever new password you want, save it
+ * (this triggers a restart), and log in with that password. Afterward,
+ * remove the variable — leaving it in place isn't harmful (it just resets to
+ * the same password on every future restart), but it's good practice to
+ * clear it once you're back in.
+ */
+if (process.env.RESET_ADMIN_PASSWORD) {
+  const bcrypt = require("bcryptjs");
+  const newHash = bcrypt.hashSync(process.env.RESET_ADMIN_PASSWORD, 10);
+  db.set("admin.passwordHash", newHash).write();
+  console.log("[db] Admin password was reset via the RESET_ADMIN_PASSWORD environment variable.");
+}
+
 function nextId(collection) {
   const current = db.get(`meta.nextId.${collection}`).value() || 1;
   db.set(`meta.nextId.${collection}`, current + 1).write();

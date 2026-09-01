@@ -171,3 +171,11 @@ the full-image preview instead).
 - Project demos are served from the same domain as the rest of your site (under `/demos`).
   Only upload your own site's code — since this runs your uploaded HTML/JS directly in
   visitors' browsers, treat it the same as you would hosting the files anywhere else.
+
+## Locked out of /admin?
+
+Set `RESET_ADMIN_PASSWORD` as an environment variable on your host (e.g. Render → your
+backend service → Environment) to whatever new password you want, save it (this
+restarts the server), and log in with that password. Then **remove the variable** —
+leaving it doesn't break anything (it just resets to the same password on every future
+restart), but it's better practice to clear it once you're back in.
