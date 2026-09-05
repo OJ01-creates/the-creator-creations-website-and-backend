@@ -36,12 +36,13 @@ router.post("/:id/demo", requireAuth, upload.single("sourceZip"), async (req, re
   const project = db.get("projects").find({ id: projectId }).value();
   if (!project) return res.status(404).json({ error: "Project not found" });
 
+  const staticOnly = req.body.staticOnly === "true" || req.body.staticOnly === "1";
   const slug = `project-${projectId}`;
   const destDir = path.join(DEMOS_DIR, slug);
 
   let hasIndex;
   try {
-    hasIndex = extractSite(req.file.buffer, destDir);
+    hasIndex = extractSite(req.file.buffer, destDir, { staticOnly });
   } catch (err) {
     return res.status(400).json({ error: "Couldn't read that zip file: " + err.message });
   }
@@ -62,7 +63,10 @@ router.post("/:id/demo", requireAuth, upload.single("sourceZip"), async (req, re
 
   if (!cloudName || !apiKey || !apiSecret) {
     // Still deploy locally — just can't back it up for durability across restarts.
-    db.get("projects").find({ id: projectId }).assign({ liveUrl: demoUrl, demoSlug: slug }).write();
+    db.get("projects")
+      .find({ id: projectId })
+      .assign({ liveUrl: demoUrl, demoSlug: slug, demoStaticOnly: staticOnly })
+      .write();
     return res.status(201).json({
       demoUrl,
       warning:
@@ -94,13 +98,16 @@ router.post("/:id/demo", requireAuth, upload.single("sourceZip"), async (req, re
 
     db.get("projects")
       .find({ id: projectId })
-      .assign({ liveUrl: demoUrl, demoZipUrl: data.secure_url, demoSlug: slug })
+      .assign({ liveUrl: demoUrl, demoZipUrl: data.secure_url, demoSlug: slug, demoStaticOnly: staticOnly })
       .write();
 
     res.status(201).json({ demoUrl });
   } catch (err) {
     console.error("[demo] Cloudinary backup failed:", err.message);
-    db.get("projects").find({ id: projectId }).assign({ liveUrl: demoUrl, demoSlug: slug }).write();
+    db.get("projects")
+      .find({ id: projectId })
+      .assign({ liveUrl: demoUrl, demoSlug: slug, demoStaticOnly: staticOnly })
+      .write();
     res.status(201).json({
       demoUrl,
       warning:
@@ -118,7 +125,7 @@ router.delete("/:id/demo", requireAuth, (req, res) => {
   const slug = project.demoSlug || `project-${projectId}`;
   fs.rmSync(path.join(DEMOS_DIR, slug), { recursive: true, force: true });
 
-  db.get("projects").find({ id: projectId }).assign({ demoZipUrl: "", demoSlug: "" }).write();
+  db.get("projects").find({ id: projectId }).assign({ demoZipUrl: "", demoSlug: "", demoStaticOnly: false }).write();
 
   res.json({ success: true });
 });

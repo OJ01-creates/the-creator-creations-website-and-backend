@@ -426,6 +426,17 @@ function renderDemoSection(item) {
         e.g. the "dist" folder from "npm run build"). It deploys immediately and fills in the Live URL field above.
       </p>
       <input type="file" accept=".zip" id="demo-zip-input" style="margin-bottom:10px" />
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:14px;font-size:13px;color:var(--text);text-transform:none;letter-spacing:normal">
+        <input type="checkbox" id="demo-static-only" ${item.demoStaticOnly ? "checked" : ""} style="width:16px;height:16px;margin-top:2px;cursor:pointer;accent-color:var(--primary);flex-shrink:0" />
+        <span>
+          Static preview (no JavaScript)
+          <br /><span class="hint-text" style="margin:2px 0 0;text-transform:none;letter-spacing:normal">
+            Turn this on if the demo shows briefly then goes blank. Some site builders (React Router,
+            TanStack, Next.js, etc.) assume they're hosted at a domain's root — this keeps the design
+            and layout fully intact, just without client-side interactivity like routing or forms.
+          </span>
+        </span>
+      </label>
       <div style="display:flex;gap:8px;align-items:center">
         <button type="button" class="btn btn-outline btn-sm" id="demo-upload-btn">Upload &amp; Deploy Demo</button>
         ${item.demoSlug ? `<button type="button" class="btn btn-danger btn-sm" id="demo-remove-btn">Remove Demo</button>` : ""}
@@ -454,6 +465,8 @@ function wireDemoSection(overlay, item) {
     uploadBtn.disabled = true;
     const fd = new FormData();
     fd.append("sourceZip", file);
+    const staticOnlyCheckbox = overlay.querySelector("#demo-static-only");
+    fd.append("staticOnly", staticOnlyCheckbox && staticOnlyCheckbox.checked ? "true" : "false");
     try {
       const res = await api(`/projects/${item.id}/demo`, { method: "POST", body: fd, isForm: true });
       if (liveUrlInput) liveUrlInput.value = res.demoUrl;

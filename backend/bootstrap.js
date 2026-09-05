@@ -52,7 +52,7 @@ async function restoreDemoSites() {
       const res = await fetch(project.demoZipUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const buffer = Buffer.from(await res.arrayBuffer());
-      extractSite(buffer, destDir);
+      extractSite(buffer, destDir, { staticOnly: !!project.demoStaticOnly });
       console.log(`[bootstrap] Restored demo site for project ${project.id} (${project.demoSlug}).`);
     } catch (err) {
       console.error(`[bootstrap] Failed to restore demo for project ${project.id}:`, err.message);
