@@ -13,13 +13,18 @@ import Lightbox from "@/components/Lightbox";
 
 const localFallbackImages = [project1, project2, project3, project4, project5, project6];
 
+const BACKEND_ORIGIN = "https://the-creator-creations-backend.onrender.com";
+
+// Mirrors the actual live content as of the last sync — shown instantly while
+// the real API call is in flight, so first-time visitors during a cold start
+// see the real site immediately instead of generic placeholder content.
 const defaultProjects = [
-  { id: 1, img: project1, title: "Chromatic Vision", category: "Brand Identity", year: "2025", color: "hsl(45, 100%, 55%)", liveUrl: "" },
-  { id: 2, img: project2, title: "Aurum Luxe", category: "Packaging Design", year: "2025", color: "hsl(30, 100%, 50%)", liveUrl: "" },
-  { id: 3, img: project3, title: "Neon Pulse", category: "Poster Design", year: "2024", color: "hsl(330, 80%, 60%)", liveUrl: "" },
+  { id: 1, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788601833/creator-creations/lubejsv9t5baqg6dymrs.png", title: "SipStop Brand", category: "Brand Identity", year: "2025", color: "hsl(45, 100%, 55%)", liveUrl: "" },
+  { id: 3, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1787708035/creator-creations/xg4d2qye7znxujzd3g2u.jpg", title: "Pantheons of Art", category: "Poster Design", year: "2026", color: "hsl(330, 80%, 60%)", liveUrl: "" },
+  { id: 2, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788600056/creator-creations/gpsih8y7e3opcqhs2r3d.png", title: "Mocktail Packaging", category: "Packaging Design", year: "2025", color: "hsl(30, 100%, 50%)", liveUrl: "" },
   { id: 4, img: project4, title: "Editorial Gold", category: "Magazine Layout", year: "2024", color: "hsl(45, 100%, 55%)", liveUrl: "" },
-  { id: 5, img: project5, title: "Prisma Forms", category: "Art Direction", year: "2024", color: "hsl(280, 70%, 50%)", liveUrl: "" },
-  { id: 6, img: project6, title: "Fluid Spectrum", category: "Album Art", year: "2023", color: "hsl(330, 80%, 60%)", liveUrl: "" },
+  { id: 5, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788823733/creator-creations/i29kj1tf5wogack6uutd.png", title: "Cafeteria Deluxe", category: "Website Design", year: "2026", color: "hsl(280, 70%, 50%)", liveUrl: "https://narsh-place-preview-0grm-6jdjgilad-tunmise1805-7513s-projects.vercel.app/" },
+  { id: 6, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788580249/creator-creations/tuxit6m0swopompnt3dn.png", title: "School Spectrum", category: "Website Design", year: "2026", color: "hsl(330, 80%, 60%)", liveUrl: "https://brightpath-preview-updated.vercel.app" },
 ];
 
 const CARD_WIDTH = 420;

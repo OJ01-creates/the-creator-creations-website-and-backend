@@ -1,10 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
-import { useSettings } from "@/lib/useSiteData";
+import { useSettings, useInitialDataReady } from "@/lib/useSiteData";
 import { resolveImageUrl } from "@/lib/api";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+// The fast, branded animation always plays for at least this long — feels
+// intentional even when the backend responds instantly.
+const FAST_PHASE_MS = 2000;
+const FAST_PHASE_TARGET = 92;
+
+// Absolute ceiling: never make a visitor wait longer than this no matter
+// how slow the backend is to wake up. Past this point the page reveals with
+// whatever data is available (falling back to built-in defaults if needed —
+// same safety net as before, just a much smaller window for it to matter).
+const HARD_TIMEOUT_MS = 9000;
 
 const LoadingScreen = ({ onFinished }: { onFinished: () => void }) => {
   const { data: settings } = useSettings();
@@ -12,23 +23,49 @@ const LoadingScreen = ({ onFinished }: { onFinished: () => void }) => {
   const logoSrc = resolveImageUrl(settings?.logoImage) || logo;
   const words = siteName.split(" ");
 
+  const dataReady = useInitialDataReady();
+  const dataReadyRef = useRef(dataReady);
+  useEffect(() => {
+    dataReadyRef.current = dataReady;
+  }, [dataReady]);
+
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let raf: number;
+    let finished = false;
     const start = performance.now();
-    const duration = 2200;
 
     const tick = (now: number) => {
       const elapsed = now - start;
-      const pct = Math.min(100, Math.round((elapsed / duration) * 100));
-      setProgress(pct);
-      if (pct < 100) {
-        raf = requestAnimationFrame(tick);
+
+      // Phase 1 (0–2s): the normal branded animation, always plays in full.
+      // Phase 2 (2s–9s): if the real data isn't back yet, creep slowly
+      // toward 99% instead of sitting frozen at 92% — still feels alive
+      // without implying we're closer to done than we actually are.
+      let pct: number;
+      if (elapsed < FAST_PHASE_MS) {
+        pct = (elapsed / FAST_PHASE_MS) * FAST_PHASE_TARGET;
       } else {
-        setTimeout(onFinished, 550);
+        const creepElapsed = elapsed - FAST_PHASE_MS;
+        const creepDuration = HARD_TIMEOUT_MS - FAST_PHASE_MS;
+        const creepProgress = Math.min(1, creepElapsed / creepDuration);
+        pct = FAST_PHASE_TARGET + creepProgress * (99 - FAST_PHASE_TARGET);
       }
+
+      const readyToReveal = dataReadyRef.current || elapsed >= HARD_TIMEOUT_MS;
+
+      if (readyToReveal && !finished) {
+        finished = true;
+        setProgress(100);
+        setTimeout(onFinished, 550);
+        return;
+      }
+
+      setProgress(Math.min(99, Math.round(pct)));
+      if (!finished) raf = requestAnimationFrame(tick);
     };
+
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -153,7 +190,7 @@ const LoadingScreen = ({ onFinished }: { onFinished: () => void }) => {
             />
           </div>
           <div className="flex items-center gap-2 text-xs font-body tracking-[0.3em] uppercase text-muted-foreground">
-            <span>Loading</span>
+            <span>{progress > FAST_PHASE_TARGET ? "Almost there" : "Loading"}</span>
             <span className="text-primary font-semibold tabular-nums">{progress}%</span>
           </div>
         </motion.div>

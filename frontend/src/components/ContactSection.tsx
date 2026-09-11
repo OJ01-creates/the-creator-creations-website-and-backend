@@ -26,8 +26,8 @@ const ContactSection = () => {
   const { toast } = useToast();
   const { data: settings } = useSettings();
   const contactEmail = settings?.contactEmail || "hello@thecreatorcreations.com";
-  const contactPhone = settings?.contactPhone || "+1 (555) 123-4567";
-  const contactLocation = settings?.contactLocation || "New York, NY";
+  const contactPhone = settings?.contactPhone || "+234 (916) 784-5271, +234 (902) 625-0712";
+  const contactLocation = settings?.contactLocation || "Abuja, Nigeria";
   const [activeTab, setActiveTab] = useState<FormTab>("message");
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [newsletterEmail, setNewsletterEmail] = useState("");

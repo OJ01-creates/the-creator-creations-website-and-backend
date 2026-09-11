@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, animate } from "framer-motion";
-import designerImg from "@/assets/designer-profile.jpg";
 import project1 from "@/assets/project-1.jpg";
 import project3 from "@/assets/project-3.jpg";
 import project5 from "@/assets/project-5.jpg";
@@ -102,16 +101,18 @@ const DesignerProfile = () => {
       }));
   }, [apiMilestones]);
 
-  const designerName = settings?.designerName || "Alex Martinez";
+  const designerName = settings?.designerName || "Oluwatunmise Oyekanmi";
   const designerTitle = settings?.designerTitle || "Creative Director & Founder";
-  const designerPhoto = resolveImageUrl(settings?.designerImage) || designerImg;
+  const designerPhoto =
+    resolveImageUrl(settings?.designerImage) ||
+    "https://res.cloudinary.com/c2bvnlic/image/upload/v1787708488/creator-creations/irhmqet8ejo4ya00pdbl.jpg";
   const bio1 =
     settings?.designerBio1 ||
-    "I'm Alex — a multidisciplinary designer and creative director with over 12 years of experience turning abstract ideas into powerful visual narratives, spanning brand identity, web design and development, photography, and videography.";
+    "I'm Tunmise (OJ) — a multidisciplinary designer and creative director with over 5 years of experience turning abstract ideas into powerful visual narratives, spanning brand identity, web design and development, photography, and videography.";
   const bio2 =
     settings?.designerBio2 ||
-    "From branding Fortune 500 companies to crafting indie album art, I approach every project with the same hunger: to create something that demands attention and refuses to be forgotten.";
-  const years = settings?.yearsExperience ?? 12;
+    "From branding Fortune over 10 companies to crafting indie album art, I approach every project with the same hunger: to create something that demands attention and refuses to be forgotten.";
+  const years = settings?.yearsExperience ?? 5;
 
   const [[activeSlide, dir], setActiveSlide] = useState([0, 0]);
   const progress = useMotionValue(0);

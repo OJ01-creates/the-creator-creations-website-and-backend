@@ -2,7 +2,9 @@ import logo from "@/assets/logo.png";
 import { useSettings } from "@/lib/useSiteData";
 import { resolveImageUrl } from "@/lib/api";
 
-const defaultSocialLinks: { label: string; url: string }[] = [];
+const defaultSocialLinks: { label: string; url: string }[] = [
+  { label: "Instagram", url: "https://instagram.com/thecreator_creations" },
+];
 
 const Footer = () => {
   const { data: settings } = useSettings();

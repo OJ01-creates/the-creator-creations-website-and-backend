@@ -43,3 +43,33 @@ export function useMilestones() {
 export function useStats() {
   return useQuery({ queryKey: ["stats"], queryFn: api.getStats, ...liveOptions });
 }
+
+/**
+ * True once every query the homepage depends on has finished its first
+ * fetch attempt — successfully or not (our api.ts getters fail soft and
+ * resolve to null rather than throwing, so "finished" here just means
+ * "we've heard back, one way or another").
+ *
+ * Calling these hooks again here doesn't cause extra network requests —
+ * React Query shares one cached result per queryKey, so this just reads
+ * the same in-flight/resolved queries every section component already
+ * subscribes to.
+ *
+ * Used by LoadingScreen to hold the reveal until real content is in hand,
+ * instead of always revealing after a fixed animation length and risking a
+ * flash of default/fallback content before the live data swaps in.
+ */
+export function useInitialDataReady(): boolean {
+  const settings = useSettings();
+  const projects = useProjects();
+  const services = useServices();
+  const skills = useSkills();
+  const tools = useTools();
+  const featuredSlides = useFeaturedSlides();
+  const milestones = useMilestones();
+  const stats = useStats();
+
+  return ![settings, projects, services, skills, tools, featuredSlides, milestones, stats].some(
+    (query) => query.isLoading
+  );
+}

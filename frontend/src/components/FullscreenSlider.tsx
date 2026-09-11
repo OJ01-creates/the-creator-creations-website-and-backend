@@ -14,12 +14,13 @@ import { slugify } from "@/lib/slug";
 
 const localFallbackImages = [project1, project3, project5, project2, project6, project4];
 
+// Mirrors the actual live content as of the last sync — see ProjectSlider.tsx for why.
 const defaultSlides = [
-  { title: "Chromatic Vision", subtitle: "A bold exploration of color and form", tag: "Brand Identity", img: project1, liveUrl: "" },
-  { title: "Neon Pulse", subtitle: "Retro-futuristic poster series", tag: "Poster Design", img: project3, liveUrl: "" },
-  { title: "Prisma Forms", subtitle: "Sculptural light installations", tag: "Art Direction", img: project5, liveUrl: "" },
-  { title: "Aurum Luxe", subtitle: "Premium packaging identity", tag: "Packaging", img: project2, liveUrl: "" },
-  { title: "Fluid Spectrum", subtitle: "Experimental album artwork", tag: "Album Art", img: project6, liveUrl: "" },
+  { title: "SipStop Brand", subtitle: "A bold exploration of color and form", tag: "Brand Identity", img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788601965/creator-creations/cpgrgpw3xbwyqjlntbdw.png", liveUrl: "" },
+  { title: "Pantheons of Art", subtitle: "Creative Events series", tag: "Poster Design", img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1787742198/creator-creations/xibmapuydeo32c865xtx.jpg", liveUrl: "" },
+  { title: "Cafeteria Deluxe", subtitle: "Mind-blowing University Cafeteria Website", tag: "Web Design", img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788823869/creator-creations/j3fnxbyxas5wl262uo5q.png", liveUrl: "https://narsh-place-preview-0grm-6jdjgilad-tunmise1805-7513s-projects.vercel.app/" },
+  { title: "Mocktail Packaging", subtitle: "Premium packaging identity", tag: "Packaging", img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788600146/creator-creations/s9gdqhiacm7smtcowfjc.png", liveUrl: "" },
+  { title: "School Spectrum", subtitle: "Academic Websites", tag: "Website Design", img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788580287/creator-creations/gvyokhucouiavadxl1eb.png", liveUrl: "" },
   { title: "Editorial Gold", subtitle: "Fashion editorial layouts", tag: "Editorial", img: project4, liveUrl: "" },
 ];
 
