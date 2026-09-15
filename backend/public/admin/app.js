@@ -57,6 +57,8 @@ const RESOURCES = {
       { key: "year", label: "Year", type: "text", required: true },
       { key: "color", label: "Accent color (CSS)", type: "text", placeholder: "hsl(45, 100%, 55%)" },
       { key: "image", label: "Image", type: "image" },
+      { key: "videoUrl", label: "Video (optional)", type: "video", hint: "Shown in the lightbox instead of the still image when someone clicks to view this project." },
+      { key: "audioUrl", label: "Audio (optional)", type: "audio", hint: "For music/podcast/sound-design work — plays alongside the image or video in the lightbox." },
       { key: "liveUrl", label: "Live site / demo URL (optional)", type: "text", placeholder: "https://yourdemo.com — leave blank to show the full-image preview instead" },
       { key: "featured", label: "Show on homepage (Selected Works)", type: "checkbox", hint: "Turn this off to keep a project out of the homepage slider — it will still appear on its category page when someone clicks through." },
       { key: "order", label: "Order", type: "number" },
@@ -127,6 +129,22 @@ const RESOURCES = {
       { key: "image", label: "", isImage: true },
       { key: "title", label: "Title" },
       { key: "tag", label: "Tag" },
+      { key: "order", label: "Order" },
+    ],
+  },
+  updates: {
+    title: "Updates & Announcements", desc: "Post news, availability updates, or announcements shown on the site.",
+    fields: [
+      { key: "title", label: "Title", type: "text", required: true },
+      { key: "content", label: "Content", type: "textarea", required: true },
+      { key: "date", label: "Date", type: "text", placeholder: "2026-01-01", required: true },
+      { key: "image", label: "Image (optional)", type: "image" },
+      { key: "order", label: "Order", type: "number" },
+    ],
+    columns: [
+      { key: "image", label: "", isImage: true },
+      { key: "title", label: "Title" },
+      { key: "date", label: "Date" },
       { key: "order", label: "Order" },
     ],
   },
@@ -231,6 +249,7 @@ const NAV = [
   { route: "skills", label: "Skills" },
   { route: "tools", label: "Tools & Languages" },
   { route: "featured-slides", label: "Featured Slider" },
+  { route: "updates", label: "Updates & Announcements" },
   { route: "milestones", label: "Journey" },
   { route: "stats", label: "About Stats" },
   { route: "messages", label: "Messages" },
@@ -384,8 +403,9 @@ async function loadResourceTable(resourceKey) {
 }
 
 /** Wires up every image-type field's file input inside a given container (modal or form). */
+/** Wires up file upload for image/video/audio fields — shared upload endpoint, different preview element per type. */
 function wireImageFields(container, fields) {
-  fields.filter(f => f.type === "image").forEach(f => {
+  fields.filter(f => f.type === "image" || f.type === "video" || f.type === "audio").forEach(f => {
     const fileInput = container.querySelector(`[data-file-for="${f.key}"]`);
     const hiddenInput = container.querySelector(`[name="${f.key}"]`);
     const preview = container.querySelector(`[data-preview-for="${f.key}"]`);
@@ -394,13 +414,15 @@ function wireImageFields(container, fields) {
       const file = fileInput.files[0];
       if (!file) return;
       const fd = new FormData();
-      fd.append("image", file);
+      fd.append("image", file); // field name stays "image" — the backend detects the real type from the file itself
       try {
         const res = await api("/upload", { method: "POST", body: fd, isForm: true });
         hiddenInput.value = res.url;
-        preview.src = res.url;
-        preview.style.display = "block";
-        toast("Image uploaded — don't forget to save");
+        if (preview) {
+          preview.src = res.url;
+          preview.style.display = "block";
+        }
+        toast(`${f.label.split(" (")[0]} uploaded — don't forget to save`);
       } catch (e) {
         toast(e.message, true);
       }
@@ -563,6 +585,24 @@ function renderField(f, item) {
       <input type="file" accept="image/*" data-file-for="${f.key}" style="margin-bottom:8px" />
       <input type="hidden" name="${f.key}" value="${escapeHtml(String(value))}" />
       <img data-preview-for="${f.key}" class="thumb" style="width:100%;height:120px;object-fit:cover;display:${value ? "block" : "none"};margin-bottom:16px" src="${value}" />
+    `;
+  }
+  if (f.type === "video") {
+    return `
+      <label>${f.label}</label>
+      <input type="file" accept="video/*" data-file-for="${f.key}" style="margin-bottom:8px" />
+      <input type="hidden" name="${f.key}" value="${escapeHtml(String(value))}" />
+      <video data-preview-for="${f.key}" controls style="width:100%;max-height:220px;border-radius:8px;display:${value ? "block" : "none"};margin-bottom:16px;background:#000" src="${value}"></video>
+      ${f.hint ? `<p class="hint-text" style="margin-top:-12px">${f.hint}</p>` : ""}
+    `;
+  }
+  if (f.type === "audio") {
+    return `
+      <label>${f.label}</label>
+      <input type="file" accept="audio/*" data-file-for="${f.key}" style="margin-bottom:8px" />
+      <input type="hidden" name="${f.key}" value="${escapeHtml(String(value))}" />
+      <audio data-preview-for="${f.key}" controls style="width:100%;display:${value ? "block" : "none"};margin-bottom:16px" src="${value}"></audio>
+      ${f.hint ? `<p class="hint-text" style="margin-top:-12px">${f.hint}</p>` : ""}
     `;
   }
   if (f.type === "color") {

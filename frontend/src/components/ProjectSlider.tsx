@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import project1 from "@/assets/project-1.jpg";
 import project2 from "@/assets/project-2.jpg";
@@ -18,7 +19,7 @@ const BACKEND_ORIGIN = "https://the-creator-creations-backend.onrender.com";
 // Mirrors the actual live content as of the last sync — shown instantly while
 // the real API call is in flight, so first-time visitors during a cold start
 // see the real site immediately instead of generic placeholder content.
-const defaultProjects = [
+const defaultProjects: ProjectCardData[] = [
   { id: 1, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788601833/creator-creations/lubejsv9t5baqg6dymrs.png", title: "SipStop Brand", category: "Brand Identity", year: "2025", color: "hsl(45, 100%, 55%)", liveUrl: "" },
   { id: 3, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1787708035/creator-creations/xg4d2qye7znxujzd3g2u.jpg", title: "Pantheons of Art", category: "Poster Design", year: "2026", color: "hsl(330, 80%, 60%)", liveUrl: "" },
   { id: 2, img: "https://res.cloudinary.com/c2bvnlic/image/upload/v1788600056/creator-creations/gpsih8y7e3opcqhs2r3d.png", title: "Mocktail Packaging", category: "Packaging Design", year: "2025", color: "hsl(30, 100%, 50%)", liveUrl: "" },
@@ -32,6 +33,7 @@ const CARD_GAP = 24;
 
 const ProjectSlider = () => {
   const { data: apiProjects } = useProjects();
+  const navigate = useNavigate();
 
   const projects = useMemo(() => {
     if (!apiProjects || apiProjects.length === 0) return defaultProjects;
@@ -47,6 +49,8 @@ const ProjectSlider = () => {
         year: p.year,
         color: p.color || "hsl(45, 100%, 55%)",
         img: resolveImageUrl(p.image) || localFallbackImages[i % localFallbackImages.length],
+        videoUrl: resolveImageUrl(p.videoUrl) || "",
+        audioUrl: resolveImageUrl(p.audioUrl) || "",
         liveUrl: p.liveUrl || "",
       }));
   }, [apiProjects]);
@@ -171,7 +175,9 @@ const ProjectSlider = () => {
               isActive={i === activeIndex}
               isDragging={isDragging}
               onExpand={() => {
-                if (project.liveUrl) {
+                if (project.videoUrl) {
+                  setLightboxProject(project);
+                } else if (project.liveUrl) {
                   window.open(project.liveUrl, "_blank", "noopener,noreferrer");
                 } else {
                   setLightboxProject(project);
@@ -228,17 +234,32 @@ const ProjectSlider = () => {
         </span>
       </div>
 
+      {/* View more CTA */}
+      <div className="max-w-7xl mx-auto px-6 md:px-16 mt-12 flex justify-center">
+        <motion.button
+          onClick={() => navigate("/work")}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          className="inline-flex items-center gap-2 border border-border text-foreground font-display font-semibold px-8 py-4 rounded-full text-sm tracking-wider uppercase hover:border-primary hover:text-primary transition-colors"
+        >
+          View More Projects
+          <ArrowRight className="w-4 h-4" />
+        </motion.button>
+      </div>
+
       <Lightbox
         image={lightboxProject?.img || null}
         title={lightboxProject?.title}
         category={lightboxProject?.category}
+        videoUrl={lightboxProject?.videoUrl}
+        audioUrl={lightboxProject?.audioUrl}
         onClose={() => setLightboxProject(null)}
       />
     </section>
   );
 };
 
-type ProjectCardData = { id: number; img: string; title: string; category: string; year: string; color: string; liveUrl: string };
+type ProjectCardData = { id: number; img: string; title: string; category: string; year: string; color: string; liveUrl: string; videoUrl?: string; audioUrl?: string };
 
 const ProjectCard = ({
   project,

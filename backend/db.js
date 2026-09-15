@@ -31,6 +31,7 @@ db.defaults({
   stats: [],
   messages: [],
   subscribers: [],
+  updates: [],
   meta: { nextId: {} },
 }).write();
 
@@ -52,7 +53,7 @@ function migrate() {
   // Brand-new collections introduced after initial launch: seed them once
   // from seed.json if the live database doesn't have any yet. After that,
   // they're fully admin-managed — this only fires if the array is empty.
-  ["tools", "featuredSlides"].forEach((collectionName) => {
+  ["tools", "featuredSlides", "updates"].forEach((collectionName) => {
     const current = db.get(collectionName).value() || [];
     if (current.length === 0 && (seed[collectionName] || []).length > 0) {
       db.set(collectionName, seed[collectionName]).write();

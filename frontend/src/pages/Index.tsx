@@ -8,6 +8,7 @@ import FullscreenSlider from "@/components/FullscreenSlider";
 import DesignerProfile from "@/components/DesignerProfile";
 import AboutSection from "@/components/AboutSection";
 import ServicesSection from "@/components/ServicesSection";
+import UpdatesSection from "@/components/UpdatesSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -37,6 +38,7 @@ const Index = () => {
       <DesignerProfile />
       <AboutSection />
       <ServicesSection />
+      <UpdatesSection />
       <ContactSection />
       <Footer />
     </div>

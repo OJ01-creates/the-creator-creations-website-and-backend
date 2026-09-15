@@ -44,6 +44,10 @@ export function useStats() {
   return useQuery({ queryKey: ["stats"], queryFn: api.getStats, ...liveOptions });
 }
 
+export function useUpdates() {
+  return useQuery({ queryKey: ["updates"], queryFn: api.getUpdates, ...liveOptions });
+}
+
 /**
  * True once every query the homepage depends on has finished its first
  * fetch attempt — successfully or not (our api.ts getters fail soft and
@@ -68,8 +72,9 @@ export function useInitialDataReady(): boolean {
   const featuredSlides = useFeaturedSlides();
   const milestones = useMilestones();
   const stats = useStats();
+  const updates = useUpdates();
 
-  return ![settings, projects, services, skills, tools, featuredSlides, milestones, stats].some(
+  return ![settings, projects, services, skills, tools, featuredSlides, milestones, stats, updates].some(
     (query) => query.isLoading
   );
 }

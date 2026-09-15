@@ -6,18 +6,28 @@ const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
-const ALLOWED = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"];
+const IMAGE_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"];
+const VIDEO_EXT = [".mp4", ".webm", ".mov", ".m4v"];
+const AUDIO_EXT = [".mp3", ".wav", ".ogg", ".m4a", ".aac"];
+const ALLOWED = [...IMAGE_EXT, ...VIDEO_EXT, ...AUDIO_EXT];
+
+function mediaKindFor(ext) {
+  if (IMAGE_EXT.includes(ext)) return "image";
+  if (VIDEO_EXT.includes(ext)) return "video";
+  if (AUDIO_EXT.includes(ext)) return "audio";
+  return null;
+}
 
 // Files are held in memory only (never written to local disk) — Render's
-// free tier disk doesn't survive restarts, so every uploaded image goes
+// free tier disk doesn't survive restarts, so every uploaded file goes
 // straight to Cloudinary instead and we store its permanent URL.
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB — generous for a short video/audio clip
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (!ALLOWED.includes(ext)) {
-      return cb(new Error("Unsupported file type"));
+      return cb(new Error("Unsupported file type. Images, video (.mp4/.webm/.mov), and audio (.mp3/.wav/.ogg/.m4a) are supported."));
     }
     cb(null, true);
   },
@@ -31,7 +41,9 @@ function signParams(params, apiSecret) {
   return crypto.createHash("sha1").update(sorted + apiSecret).digest("hex");
 }
 
-// Admin: upload an image to Cloudinary, returns { url } (a permanent, public URL)
+// Admin: upload an image, video, or audio file to Cloudinary.
+// Returns { url, mediaType } — mediaType is "image", "video", or "audio",
+// so the admin UI and frontend know how to render it back (<img>/<video>/<audio>).
 router.post("/", requireAuth, upload.single("image"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
@@ -42,9 +54,14 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
   if (!cloudName || !apiKey || !apiSecret) {
     return res.status(500).json({
       error:
-        "Image hosting isn't configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET as environment variables on your host (see backend/README.md).",
+        "Media hosting isn't configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET as environment variables on your host (see backend/README.md).",
     });
   }
+
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  const mediaType = mediaKindFor(ext);
+  // Cloudinary handles audio through its video pipeline — there's no separate audio endpoint.
+  const cloudinaryResourceType = mediaType === "image" ? "image" : "video";
 
   try {
     const timestamp = Math.floor(Date.now() / 1000);
@@ -58,7 +75,7 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
     form.append("signature", signature);
     form.append("folder", folder);
 
-    const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${cloudinaryResourceType}/upload`, {
       method: "POST",
       body: form,
     });
@@ -68,7 +85,7 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
       throw new Error(data?.error?.message || "Cloudinary upload failed");
     }
 
-    res.status(201).json({ url: data.secure_url });
+    res.status(201).json({ url: data.secure_url, mediaType });
   } catch (err) {
     console.error("[upload] Cloudinary upload failed:", err.message);
     res.status(500).json({ error: err.message || "Upload failed" });

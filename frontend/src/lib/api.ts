@@ -20,6 +20,8 @@ export interface Project {
   year: string;
   color: string;
   image: string;
+  videoUrl?: string;
+  audioUrl?: string;
   liveUrl?: string;
   featured?: boolean;
   order: number;
@@ -55,6 +57,15 @@ export interface FeaturedSlide {
   tag: string;
   image: string;
   liveUrl?: string;
+  order: number;
+}
+
+export interface Update {
+  id: number;
+  title: string;
+  content: string;
+  date: string;
+  image?: string;
   order: number;
 }
 
@@ -151,6 +162,7 @@ export const api = {
   getSkills: () => getJson<Skill[]>("/skills"),
   getTools: () => getJson<Tool[]>("/tools"),
   getFeaturedSlides: () => getJson<FeaturedSlide[]>("/featured-slides"),
+  getUpdates: () => getJson<Update[]>("/updates"),
   getMilestones: () => getJson<Milestone[]>("/milestones"),
   getStats: () => getJson<Stat[]>("/stats"),
 

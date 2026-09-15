@@ -6,10 +6,12 @@ interface LightboxProps {
   image: string | null;
   title?: string;
   category?: string;
+  videoUrl?: string;
+  audioUrl?: string;
   onClose: () => void;
 }
 
-const Lightbox = ({ image, title, category, onClose }: LightboxProps) => {
+const Lightbox = ({ image, title, category, videoUrl, audioUrl, onClose }: LightboxProps) => {
   useEffect(() => {
     if (!image) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -50,11 +52,22 @@ const Lightbox = ({ image, title, category, onClose }: LightboxProps) => {
             onClick={(e) => e.stopPropagation()}
             className="max-w-5xl w-full flex flex-col items-center cursor-default"
           >
-            <img
-              src={image}
-              alt={title || ""}
-              className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain border border-border/50"
-            />
+            {videoUrl ? (
+              <video
+                src={videoUrl}
+                poster={image}
+                controls
+                autoPlay
+                className="max-h-[80vh] w-auto max-w-full rounded-xl border border-border/50 bg-black"
+              />
+            ) : (
+              <img
+                src={image}
+                alt={title || ""}
+                className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain border border-border/50"
+              />
+            )}
+
             {(title || category) && (
               <div className="mt-5 text-center">
                 {category && (
@@ -62,6 +75,15 @@ const Lightbox = ({ image, title, category, onClose }: LightboxProps) => {
                 )}
                 {title && <h3 className="font-display text-2xl font-bold text-foreground mt-1">{title}</h3>}
               </div>
+            )}
+
+            {audioUrl && (
+              <audio
+                src={audioUrl}
+                controls
+                onClick={(e) => e.stopPropagation()}
+                className="mt-5 w-full max-w-md"
+              />
             )}
           </motion.div>
         </motion.div>
