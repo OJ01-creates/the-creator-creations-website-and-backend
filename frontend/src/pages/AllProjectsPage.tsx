@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Lightbox from "@/components/Lightbox";
 import { useProjects } from "@/lib/useSiteData";
 import { resolveImageUrl, type Project } from "@/lib/api";
 import { slugify } from "@/lib/slug";
@@ -18,6 +19,7 @@ const localFallbackImages = [project1, project2, project3, project4, project5, p
 
 const AllProjectsPage = () => {
   const { data: apiProjects, isLoading } = useProjects();
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const categories = useMemo(() => {
     const all = [...(apiProjects || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -109,6 +111,22 @@ const AllProjectsPage = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (project.liveUrl) {
+                            window.open(project.liveUrl, "_blank", "noopener,noreferrer");
+                          } else {
+                            setSelectedProject(project);
+                          }
+                        }}
+                        aria-label={project.liveUrl ? `Visit live site for ${project.title}` : `View full image of ${project.title}`}
+                        className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
+                      >
+                        <span className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-110 transition-transform">
+                          <ArrowUpRight className="w-6 h-6" />
+                        </span>
+                      </button>
                       <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-background/60 backdrop-blur-sm border border-border/30">
                         <span className="text-xs font-body text-muted-foreground">{project.year}</span>
                       </div>
@@ -135,6 +153,14 @@ const AllProjectsPage = () => {
         </section>
       ))}
 
+      <Lightbox
+        image={selectedProject ? resolveImageUrl(selectedProject.image) || localFallbackImages[0] : null}
+        title={selectedProject?.title}
+        category={selectedProject?.category}
+        videoUrl={selectedProject ? resolveImageUrl(selectedProject.videoUrl) : undefined}
+        audioUrl={selectedProject ? resolveImageUrl(selectedProject.audioUrl) : undefined}
+        onClose={() => setSelectedProject(null)}
+      />
       <Footer />
     </div>
   );
