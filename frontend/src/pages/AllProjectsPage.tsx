@@ -19,6 +19,7 @@ const localFallbackImages = [project1, project2, project3, project4, project5, p
 
 const AllProjectsPage = () => {
   const { data: apiProjects, isLoading } = useProjects();
+  const [lightboxProject, setLightboxProject] = useState<Project | null>(null);
 
   const categories = useMemo(() => {
     const all = [...(apiProjects || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
