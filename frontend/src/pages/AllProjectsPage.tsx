@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Lightbox from "@/components/Lightbox";
@@ -20,9 +20,13 @@ const localFallbackImages = [project1, project2, project3, project4, project5, p
 const AllProjectsPage = () => {
   const { data: apiProjects, isLoading } = useProjects();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const categories = useMemo(() => {
-    const all = [...(apiProjects || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const query = searchQuery.trim().toLowerCase();
+    const all = [...(apiProjects || [])]
+      .filter((project) => !query || project.title.toLowerCase().includes(query) || project.category.toLowerCase().includes(query))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
     const groups = new Map<string, Project[]>();
     all.forEach((p) => {
       const list = groups.get(p.category) || [];
@@ -30,7 +34,7 @@ const AllProjectsPage = () => {
       groups.set(p.category, list);
     });
     return Array.from(groups.entries()).map(([category, projects]) => ({ category, projects }));
-  }, [apiProjects]);
+  }, [apiProjects, searchQuery]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,11 +59,27 @@ const AllProjectsPage = () => {
               All <span className="text-gradient-primary">Projects</span>
             </h1>
             <p className="text-muted-foreground font-body mt-4">
-              {isLoading ? "Loading…" : `${apiProjects?.length || 0} projects across ${categories.length} categories`}
+              {isLoading
+                ? "Loading…"
+                : searchQuery.trim()
+                  ? `${categories.reduce((count, item) => count + item.projects.length, 0)} matching projects`
+                  : `${apiProjects?.length || 0} projects across ${categories.length} categories`}
             </p>
 
+            <div className="relative mt-8 max-w-xl">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search by design name or category..."
+                aria-label="Search projects by design name or category"
+                className="w-full rounded-full border border-border bg-card py-4 pl-14 pr-6 text-sm font-body text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+
             {categories.length > 0 && (
-              <div className="flex flex-wrap gap-3 mt-8">
+              <div className="flex flex-wrap gap-3 mt-6">
                 {categories.map(({ category }) => (
                   <a
                     key={category}
@@ -76,7 +96,9 @@ const AllProjectsPage = () => {
       </section>
 
       {!isLoading && categories.length === 0 && (
-        <div className="pb-32 text-center text-muted-foreground font-body">No projects yet.</div>
+        <div className="pb-32 text-center text-muted-foreground font-body">
+          {searchQuery.trim() ? `No projects found for “${searchQuery.trim()}”. Try another name or category.` : "No projects yet."}
+        </div>
       )}
 
       {categories.map(({ category, projects }, sectionIndex) => (
