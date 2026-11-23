@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
@@ -7,7 +7,6 @@ import Footer from "@/components/Footer";
 import { useProjects } from "@/lib/useSiteData";
 import { resolveImageUrl, type Project } from "@/lib/api";
 import { slugify } from "@/lib/slug";
-import Lightbox from "@/components/Lightbox";
 import project1 from "@/assets/project-1.jpg";
 import project2 from "@/assets/project-2.jpg";
 import project3 from "@/assets/project-3.jpg";
@@ -19,7 +18,6 @@ const localFallbackImages = [project1, project2, project3, project4, project5, p
 
 const AllProjectsPage = () => {
   const { data: apiProjects, isLoading } = useProjects();
-  const [lightboxProject, setLightboxProject] = useState<Project | null>(null);
 
   const categories = useMemo(() => {
     const all = [...(apiProjects || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -111,25 +109,6 @@ const AllProjectsPage = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 bg-background/0 group-hover:bg-background/35 transition-colors duration-500" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (project.liveUrl) {
-                            window.open(project.liveUrl, "_blank", "noopener,noreferrer");
-                          } else {
-                            setLightboxProject(project);
-                          }
-                        }}
-                        aria-label={project.liveUrl ? `Open live website for ${project.title}` : `View full design for ${project.title}`}
-                        title={project.liveUrl ? "View live website" : "View full design"}
-                        className="absolute bottom-5 right-5 z-10 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-3 shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 hover:scale-105 transition-all duration-300"
-                      >
-                        <span className="text-xs font-body font-semibold tracking-wide">
-                          {project.liveUrl ? "View Website" : "View Full Design"}
-                        </span>
-                        <ArrowUpRight className="w-4 h-4" />
-                      </button>
                       <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-background/60 backdrop-blur-sm border border-border/30">
                         <span className="text-xs font-body text-muted-foreground">{project.year}</span>
                       </div>
@@ -157,15 +136,6 @@ const AllProjectsPage = () => {
       ))}
 
       <Footer />
-
-      <Lightbox
-        image={lightboxProject ? resolveImageUrl(lightboxProject.image) || localFallbackImages[0] : null}
-        title={lightboxProject?.title}
-        category={lightboxProject?.category}
-        videoUrl={lightboxProject ? resolveImageUrl(lightboxProject.videoUrl) : undefined}
-        audioUrl={lightboxProject ? resolveImageUrl(lightboxProject.audioUrl) : undefined}
-        onClose={() => setLightboxProject(null)}
-      />
     </div>
   );
 };
