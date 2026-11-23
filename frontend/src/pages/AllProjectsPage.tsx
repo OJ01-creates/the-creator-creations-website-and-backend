@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Lightbox from "@/components/Lightbox";
 import { useProjects } from "@/lib/useSiteData";
 import { resolveImageUrl, type Project } from "@/lib/api";
 import { slugify } from "@/lib/slug";
@@ -109,6 +110,47 @@ const AllProjectsPage = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
+
+                      {/* Full preview control — mirrors the homepage ProjectSlider */}
+                      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (project.videoUrl) {
+                              setLightboxProject(project);
+                            } else if (project.liveUrl) {
+                              window.open(project.liveUrl, "_blank", "noopener,noreferrer");
+                            } else {
+                              setLightboxProject(project);
+                            }
+                          }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          aria-label={project.liveUrl ? `Visit live site for ${project.title}` : `View full image of ${project.title}`}
+                          title={project.liveUrl ? "Visit live site" : "View full design"}
+                          className="w-16 h-16 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        >
+                          <ArrowUpRight className="w-6 h-6 text-primary-foreground" />
+                        </button>
+                      </div>
+
+                      {/* Keep the preview reachable on touch devices without hover */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (project.videoUrl) {
+                            setLightboxProject(project);
+                          } else if (project.liveUrl) {
+                            window.open(project.liveUrl, "_blank", "noopener,noreferrer");
+                          } else {
+                            setLightboxProject(project);
+                          }
+                        }}
+                        aria-label={project.liveUrl ? `Visit live site for ${project.title}` : `View full image of ${project.title}`}
+                        className="md:hidden absolute bottom-4 left-4 w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-lg"
+                      >
+                        <ArrowUpRight className="w-5 h-5 text-primary-foreground" />
+                      </button>
+
                       <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-background/60 backdrop-blur-sm border border-border/30">
                         <span className="text-xs font-body text-muted-foreground">{project.year}</span>
                       </div>
@@ -136,6 +178,15 @@ const AllProjectsPage = () => {
       ))}
 
       <Footer />
+
+      <Lightbox
+        image={lightboxProject ? resolveImageUrl(lightboxProject.image) || localFallbackImages[0] : null}
+        title={lightboxProject?.title}
+        category={lightboxProject?.category}
+        videoUrl={lightboxProject ? resolveImageUrl(lightboxProject.videoUrl) : undefined}
+        audioUrl={lightboxProject ? resolveImageUrl(lightboxProject.audioUrl) : undefined}
+        onClose={() => setLightboxProject(null)}
+      />
     </div>
   );
 };
